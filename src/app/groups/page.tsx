@@ -17,11 +17,6 @@ export default async function GroupsPage() {
           <div className="flex items-center">
             <h1 className="text-3xl font-bold text-gray-900">View Run Groups</h1>
           </div>
-          <Link href="/groups/create">
-            <span className={`${buttonBase} ${buttonPrimary} ${buttonLg} block text-center cursor-pointer`}>
-              Create New Group
-            </span>
-          </Link>
         </div>
 
         {groups.length === 0 ? (
@@ -33,7 +28,7 @@ export default async function GroupsPage() {
               <h2 className="text-2xl font-semibold text-gray-900 mb-2">No Run Groups Yet</h2>
               <p className="text-gray-600 mb-6">Be the first to create a run group in your area!</p>
             </div>
-            <Link href="/groups/create">
+            <Link href="/admin/create-group">
               <span className={`${buttonBase} ${buttonPrimary} ${buttonLg} block text-center cursor-pointer`}>
                 Create Your First Group
               </span>

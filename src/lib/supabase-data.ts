@@ -1,28 +1,42 @@
 import { supabase } from './supabase';
 import { RunGroup, Member, GroupEvent } from './data';
+import bcrypt from 'bcryptjs';
 
 // Group operations
-export async function createGroup(groupData: { name: string; description: string }): Promise<RunGroup> {
+export async function createGroup(groupData: { name: string; description: string; email: string; role?: 'Admin' | 'GroupOwner' }): Promise<{ group: RunGroup; tempPassword: string }> {
+  // Generate a random temp password
+  const tempPassword = Math.random().toString(36).slice(-8);
+  const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
   const { data, error } = await supabase
     .from('groups')
     .insert({
       name: groupData.name,
       description: groupData.description,
-      created_at: new Date().toISOString()
+      email: groupData.email,
+      password: hashedPassword,
+      first_login: true,
+      created_at: new Date().toISOString(),
+      role: groupData.role || 'GroupOwner',
     })
     .select()
     .single();
 
   if (error) throw error;
 
-  return {
+  const group: RunGroup = {
     id: data.id,
     name: data.name,
+    email: data.email,
     description: data.description,
     createdAt: data.created_at,
     members: [],
-    events: []
+    events: [],
+    firstLogin: data.firstLogin ?? data.first_login ?? false,
+    role: data.role || 'GroupOwner',
   };
+
+  return { group, tempPassword };
 }
 
 export async function getGroups(): Promise<(RunGroup & { memberCount: number; eventCount: number })[]> {
@@ -56,10 +70,13 @@ export async function getGroups(): Promise<(RunGroup & { memberCount: number; ev
   return groups.map(group => ({
     id: group.id,
     name: group.name,
+    email: group.email,
     description: group.description,
     createdAt: group.created_at,
     members: [],
     events: [],
+    firstLogin: group.firstLogin ?? group.first_login ?? false,
+    role: group.role || 'GroupOwner',
     memberCount: memberCounts[group.id] || 0,
     eventCount: eventCounts[group.id] || 0
   }));
@@ -86,10 +103,13 @@ export async function getGroup(id: string): Promise<RunGroup | null> {
   return {
     id: data.id,
     name: data.name,
+    email: data.email,
     description: data.description,
     createdAt: data.created_at,
     members,
-    events
+    events,
+    firstLogin: data.firstLogin ?? data.first_login ?? false,
+    role: data.role || 'GroupOwner',
   };
 }
 
@@ -112,10 +132,13 @@ export async function updateGroup(id: string, updates: { name: string; descripti
   return {
     id: data.id,
     name: data.name,
+    email: data.email,
     description: data.description,
     createdAt: data.created_at,
     members: [],
-    events: []
+    events: [],
+    firstLogin: data.firstLogin ?? data.first_login ?? false,
+    role: data.role || 'GroupOwner',
   };
 }
 

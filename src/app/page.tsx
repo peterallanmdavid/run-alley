@@ -43,7 +43,7 @@ export default async function Home() {
             <p className="text-gray-600">Connect with runners in your area</p>
           </div>
           <div className="flex flex-col gap-2">
-            <Link href="/groups/create">
+            <Link href="/admin/create-group">
               <span className={`${buttonBase} ${buttonPrimary} ${buttonLg} block text-center cursor-pointer`}>
                 Create A Run Group
               </span>

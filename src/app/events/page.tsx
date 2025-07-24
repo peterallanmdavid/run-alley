@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components';
 import { getAllEvents, ApiError } from '@/lib/api';
 import { GroupEvent } from '@/lib/data';
+import EventsCard from '@/components/EventsCard';
 
 interface EventWithGroup extends GroupEvent {
   groupName: string;
@@ -67,28 +68,11 @@ export default function EventsPage() {
           ) : (
             <div className="space-y-4">
               {events.map((event) => (
-                <div
+                <EventsCard
                   key={event.id}
-                  className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-                  onClick={() => router.push(`/groups/${event.groupId}`)}
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                        {event.name}
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-2">
-                        Created by: {event.groupName}
-                      </p>
-                      <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                        <span>📍 {event.location}</span>
-                        <span>🕐 {formatEventTime(event.time)}</span>
-                        <span>📏 {event.distance} km</span>
-                        <span>🏃 {event.paceGroups.join(', ')}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  event={event}
+                  formatEventTime={formatEventTime}
+                />
               ))}
             </div>
           )}

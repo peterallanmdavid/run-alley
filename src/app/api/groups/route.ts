@@ -17,17 +17,17 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, description } = body;
+    const { name, description, email } = body;
 
-    if (!name) {
+    if (!name || !email) {
       return NextResponse.json(
-        { error: 'Group name is required' },
+        { error: 'Group name and email are required' },
         { status: 400 }
       );
     }
 
-    const newGroup = await createGroup({ name, description });
-    return NextResponse.json(newGroup, { status: 201 });
+    const { group, tempPassword } = await createGroup({ name, description, email });
+    return NextResponse.json({ group, tempPassword }, { status: 201 });
   } catch (error) {
     console.error('Error creating group:', error);
     return NextResponse.json(

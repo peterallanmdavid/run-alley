@@ -18,10 +18,13 @@ export interface GroupEvent {
 export interface RunGroup {
   id: string;
   name: string;
+  email: string;
   description: string;
   createdAt: string;
   members: Member[];
   events: GroupEvent[];
+  firstLogin: boolean;
+  role: 'Admin' | 'GroupOwner';
 }
 
 // In-memory storage for production compatibility

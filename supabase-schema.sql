@@ -70,3 +70,6 @@ CREATE POLICY "Allow public update to events" ON events
 
 CREATE POLICY "Allow public delete from events" ON events
   FOR DELETE USING (true); 
+
+-- Add role column to groups table
+ALTER TABLE groups ADD COLUMN role TEXT NOT NULL DEFAULT 'GroupOwner' CHECK (role IN ('Admin', 'GroupOwner')); 

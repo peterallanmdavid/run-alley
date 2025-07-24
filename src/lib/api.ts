@@ -1,3 +1,4 @@
+
 import { RunGroup, Member, GroupEvent } from './data';
 
 const API_BASE = '/api';
@@ -18,13 +19,13 @@ async function handleResponse<T>(response: Response): Promise<T> {
 }
 
 // Group operations
-export async function createGroup(data: { name: string; description: string }): Promise<RunGroup> {
+export async function createGroup(data: { name: string; description: string; email: string }): Promise<{ group: RunGroup; tempPassword: string }> {
   const response = await fetch(`${API_BASE}/groups`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  return handleResponse<RunGroup>(response);
+  return handleResponse<{ group: RunGroup; tempPassword: string }>(response);
 }
 
 export async function getGroups(): Promise<RunGroup[]> {
@@ -101,3 +102,55 @@ export async function getAllEvents(): Promise<Array<GroupEvent & { groupName: st
   const response = await fetch(`${API_BASE}/events`);
   return handleResponse<Array<GroupEvent & { groupName: string; groupId: string }>>(response);
 } 
+
+export async function login(email: string, password: string): Promise<{ group: RunGroup & { email: string; role: 'Admin' | 'GroupOwner' } }> {
+  const response = await fetch(`/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new ApiError(response.status, data.error || 'Login failed');
+  }
+  return response.json();
+}
+
+export async function changePassword(email: string, oldPassword: string, newPassword: string, repeatPassword: string): Promise<{ success: boolean }> {
+  const response = await fetch(`${API_BASE}/auth/change-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, oldPassword, newPassword, repeatPassword }),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new ApiError(response.status, data.error || 'Password change failed');
+  }
+  return response.json();
+}
+
+export async function logout(): Promise<{ success: boolean }> {
+  const response = await fetch('/api/auth/logout', {
+    method: 'POST',
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new ApiError(response.status, data.error || 'Logout failed');
+  }
+  return response.json();
+}
+
+export async function getCurrentUser(): Promise<{ group: RunGroup & { email: string; role: 'Admin' | 'GroupOwner' } } | null> {
+  const response = await fetch('/api/auth/me');
+  if (!response.ok) return null;
+  return response.json();
+}
+
+// Admin operations
+export async function resetPassword(groupId: string): Promise<{ success: boolean; newPassword: string; message: string }> {
+  const response = await fetch(`${API_BASE}/groups/${groupId}/reset-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  return handleResponse<{ success: boolean; newPassword: string; message: string }>(response);
+}
