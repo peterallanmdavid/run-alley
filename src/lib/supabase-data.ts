@@ -39,7 +39,7 @@ export async function getGroups(): Promise<(RunGroup & { memberCount: number; ev
     .select('group_id', { count: 'exact', head: false });
   if (memberError) throw memberError;
   const memberCounts: Record<string, number> = {};
-  memberCountsRaw?.forEach((row: any) => {
+  memberCountsRaw?.forEach((row: { group_id: string }) => {
     memberCounts[row.group_id] = (memberCounts[row.group_id] || 0) + 1;
   });
 
@@ -49,7 +49,7 @@ export async function getGroups(): Promise<(RunGroup & { memberCount: number; ev
     .select('group_id', { count: 'exact', head: false });
   if (eventError) throw eventError;
   const eventCounts: Record<string, number> = {};
-  eventCountsRaw?.forEach((row: any) => {
+  eventCountsRaw?.forEach((row: { group_id: string }) => {
     eventCounts[row.group_id] = (eventCounts[row.group_id] || 0) + 1;
   });
 
