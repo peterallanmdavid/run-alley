@@ -25,21 +25,43 @@ export async function createGroup(groupData: { name: string; description: string
   };
 }
 
-export async function getGroups(): Promise<RunGroup[]> {
-  const { data, error } = await supabase
+export async function getGroups(): Promise<(RunGroup & { memberCount: number; eventCount: number })[]> {
+  // Fetch groups
+  const { data: groups, error } = await supabase
     .from('groups')
     .select('*')
     .order('created_at', { ascending: false });
-
   if (error) throw error;
 
-  return data.map(group => ({
+  // Fetch member counts
+  const { data: memberCountsRaw, error: memberError } = await supabase
+    .from('members')
+    .select('group_id', { count: 'exact', head: false });
+  if (memberError) throw memberError;
+  const memberCounts: Record<string, number> = {};
+  memberCountsRaw?.forEach((row: any) => {
+    memberCounts[row.group_id] = (memberCounts[row.group_id] || 0) + 1;
+  });
+
+  // Fetch event counts
+  const { data: eventCountsRaw, error: eventError } = await supabase
+    .from('events')
+    .select('group_id', { count: 'exact', head: false });
+  if (eventError) throw eventError;
+  const eventCounts: Record<string, number> = {};
+  eventCountsRaw?.forEach((row: any) => {
+    eventCounts[row.group_id] = (eventCounts[row.group_id] || 0) + 1;
+  });
+
+  return groups.map(group => ({
     id: group.id,
     name: group.name,
     description: group.description,
     createdAt: group.created_at,
     members: [],
-    events: []
+    events: [],
+    memberCount: memberCounts[group.id] || 0,
+    eventCount: eventCounts[group.id] || 0
   }));
 }
 

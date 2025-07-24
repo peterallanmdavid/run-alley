@@ -31,6 +31,9 @@ export default function ViewGroup() {
     distance: '',
     paceGroups: [] as string[]
   });
+  const [editLoading, setEditLoading] = useState(false);
+  const [memberLoading, setMemberLoading] = useState(false);
+  const [eventLoading, setEventLoading] = useState(false);
 
   useEffect(() => {
     const loadGroup = async () => {
@@ -74,6 +77,7 @@ export default function ViewGroup() {
     
     if (!group) return;
 
+    setEditLoading(true);
     try {
       const updatedGroup = await updateGroup(groupId, formData);
       setGroup(updatedGroup);
@@ -84,6 +88,8 @@ export default function ViewGroup() {
       } else {
         alert('Failed to update group');
       }
+    } finally {
+      setEditLoading(false);
     }
   };
 
@@ -102,6 +108,7 @@ export default function ViewGroup() {
     
     if (!group || !newMember.name || !newMember.age || !newMember.gender) return;
 
+    setMemberLoading(true);
     try {
       const member = await addMember(groupId, newMember);
       const updatedGroup = {
@@ -119,6 +126,8 @@ export default function ViewGroup() {
       } else {
         alert('Failed to add member');
       }
+    } finally {
+      setMemberLoading(false);
     }
   };
 
@@ -146,6 +155,7 @@ export default function ViewGroup() {
     
     if (!group || !newEvent.name || !newEvent.location || !newEvent.time || !newEvent.distance || newEvent.paceGroups.length === 0) return;
 
+    setEventLoading(true);
     try {
       const event = await addEvent(groupId, newEvent);
       const updatedGroup = {
@@ -163,6 +173,8 @@ export default function ViewGroup() {
       } else {
         alert('Failed to add event');
       }
+    } finally {
+      setEventLoading(false);
     }
   };
 
@@ -185,9 +197,7 @@ export default function ViewGroup() {
     }
   };
 
-  const handleBack = () => {
-    router.push('/groups');
-  };
+
 
   const formatEventTime = (dateTimeString: string) => {
     try {
@@ -207,7 +217,7 @@ export default function ViewGroup() {
 
   if (!group) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div className="flex items-center justify-center py-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading group...</p>
@@ -217,17 +227,11 @@ export default function ViewGroup() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+    <div className="py-8">
       <div className="max-w-4xl mx-auto px-4">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center">
-              <button
-                onClick={handleBack}
-                className="mr-4 text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                ← Back
-              </button>
               <h1 className="text-3xl font-bold text-gray-900">Run Group Details</h1>
             </div>
             <div className="flex gap-3">
@@ -239,18 +243,6 @@ export default function ViewGroup() {
                   Edit Group
                 </Button>
               )}
-              <Button
-                onClick={() => setShowAddMember(true)}
-                variant="success"
-              >
-                Add Member
-              </Button>
-              <Button
-                onClick={() => setShowAddEvent(true)}
-                variant="primary"
-              >
-                Add Event
-              </Button>
             </div>
           </div>
 
@@ -299,8 +291,19 @@ export default function ViewGroup() {
                     type="submit"
                     variant="primary"
                     className="flex-1"
+                    disabled={editLoading}
                   >
-                    Save Changes
+                    {editLoading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        </svg>
+                        Saving...
+                      </span>
+                    ) : (
+                      'Save Changes'
+                    )}
                   </Button>
                 </div>
               </form>
@@ -342,190 +345,104 @@ export default function ViewGroup() {
             )}
           </div>
 
-          {/* Add Member Form */}
-          {showAddMember && (
-            <div className="bg-gray-50 rounded-xl p-6 mb-8">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Add New Member</h3>
-              <form onSubmit={handleAddMember} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label htmlFor="memberName" className="block text-sm font-medium text-gray-700 mb-2">
-                      Name *
-                    </label>
-                    <Input
-                      id="memberName"
-                      name="name"
-                      value={newMember.name}
-                      onChange={handleMemberInputChange}
-                      required
-                      placeholder="Enter member name"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="memberAge" className="block text-sm font-medium text-gray-700 mb-2">
-                      Age *
-                    </label>
-                    <Input
-                      id="memberAge"
-                      name="age"
-                      type="number"
-                      value={newMember.age}
-                      onChange={handleMemberInputChange}
-                      required
-                      min={1}
-                      max={120}
-                      placeholder="Enter age"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="memberGender" className="block text-sm font-medium text-gray-700 mb-2">
-                      Gender *
-                    </label>
-                    <select
-                      id="memberGender"
-                      name="gender"
-                      value={newMember.gender}
-                      onChange={handleMemberInputChange}
-                      required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                    >
-                      <option value="">Select gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div className="flex gap-4">
-                  <Button
-                    type="button"
-                    onClick={() => setShowAddMember(false)}
-                    variant="secondary"
-                    className="flex-1"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    variant="success"
-                    className="flex-1"
-                  >
-                    Save Member
-                  </Button>
-                </div>
-              </form>
-            </div>
-          )}
-
-          {/* Add Event Form */}
-          {showAddEvent && (
-            <div className="bg-blue-50 rounded-xl p-6 mb-8">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Add New Event</h3>
-              <form onSubmit={handleAddEvent} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="eventName" className="block text-sm font-medium text-gray-700 mb-2">
-                      Event Name *
-                    </label>
-                    <Input
-                      id="eventName"
-                      name="name"
-                      value={newEvent.name}
-                      onChange={(e) => setNewEvent(prev => ({ ...prev, name: e.target.value }))}
-                      required
-                      placeholder="Enter event name"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="eventLocation" className="block text-sm font-medium text-gray-700 mb-2">
-                      Location *
-                    </label>
-                    <Input
-                      id="eventLocation"
-                      name="location"
-                      value={newEvent.location}
-                      onChange={(e) => setNewEvent(prev => ({ ...prev, location: e.target.value }))}
-                      required
-                      placeholder="Enter location"
-                    />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="eventTime" className="block text-sm font-medium text-gray-700 mb-2">
-                      Date & Time *
-                    </label>
-                    <Input
-                      id="eventTime"
-                      name="time"
-                      type="datetime-local"
-                      value={newEvent.time}
-                      onChange={(e) => setNewEvent(prev => ({ ...prev, time: e.target.value }))}
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <label htmlFor="eventDistance" className="block text-sm font-medium text-gray-700 mb-2">
-                      Distance (kilometers) *
-                    </label>
-                    <Input
-                      id="eventDistance"
-                      name="distance"
-                      type="number"
-                      value={newEvent.distance}
-                      onChange={(e) => setNewEvent(prev => ({ ...prev, distance: e.target.value }))}
-                      required
-                      min={0.1}
-                      max={100}
-                      step={0.1}
-                      placeholder="e.g., 5, 10.5, 21"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Pace Groups *
-                  </label>
-                  <PaceGroupsSelect
-                    value={newEvent.paceGroups}
-                    onChange={(value) => setNewEvent(prev => ({ ...prev, paceGroups: value }))}
-                    className="bg-white p-4 rounded-lg border border-gray-200"
-                  />
-                </div>
-                
-                <div className="flex gap-4">
-                  <Button
-                    type="button"
-                    onClick={() => setShowAddEvent(false)}
-                    variant="secondary"
-                    className="flex-1"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    className="flex-1"
-                  >
-                    Save Event
-                  </Button>
-                </div>
-              </form>
-            </div>
-          )}
-
           {/* Members List */}
           <div className="mb-8">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">
-              Members ({group.members?.length || 0})
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold text-gray-900">Members ({group.members?.length || 0})</h3>
+              <Button
+                onClick={() => setShowAddMember(true)}
+                variant="success"
+              >
+                Add Member
+              </Button>
+            </div>
+            {showAddMember && (
+              <div className="bg-gray-50 rounded-xl p-6 mb-8">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">Add New Member</h3>
+                <form onSubmit={handleAddMember} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label htmlFor="memberName" className="block text-sm font-medium text-gray-700 mb-2">
+                        Name *
+                      </label>
+                      <Input
+                        id="memberName"
+                        name="name"
+                        value={newMember.name}
+                        onChange={handleMemberInputChange}
+                        required
+                        placeholder="Enter member name"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="memberAge" className="block text-sm font-medium text-gray-700 mb-2">
+                        Age *
+                      </label>
+                      <Input
+                        id="memberAge"
+                        name="age"
+                        type="number"
+                        value={newMember.age}
+                        onChange={handleMemberInputChange}
+                        required
+                        min={1}
+                        max={120}
+                        placeholder="Enter age"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="memberGender" className="block text-sm font-medium text-gray-700 mb-2">
+                        Gender *
+                      </label>
+                      <select
+                        id="memberGender"
+                        name="gender"
+                        value={newMember.gender}
+                        onChange={handleMemberInputChange}
+                        required
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                      >
+                        <option value="">Select gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-4">
+                    <Button
+                      type="button"
+                      onClick={() => setShowAddMember(false)}
+                      variant="secondary"
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="success"
+                      className="flex-1"
+                      disabled={memberLoading}
+                    >
+                      {memberLoading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                          </svg>
+                          Adding...
+                        </span>
+                      ) : (
+                        'Save Member'
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            )}
             
             {!group.members || group.members.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
@@ -556,9 +473,125 @@ export default function ViewGroup() {
 
           {/* Events List */}
           <div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">
-              Group Events ({group.events?.length || 0})
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold text-gray-900">Group Events ({group.events?.length || 0})</h3>
+              <Button
+                onClick={() => setShowAddEvent(true)}
+                variant="primary"
+              >
+                Add Event
+              </Button>
+            </div>
+            {showAddEvent && (
+              <div className="bg-blue-50 rounded-xl p-6 mb-8">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">Add New Event</h3>
+                <form onSubmit={handleAddEvent} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="eventName" className="block text-sm font-medium text-gray-700 mb-2">
+                        Event Name *
+                      </label>
+                      <Input
+                        id="eventName"
+                        name="name"
+                        value={newEvent.name}
+                        onChange={(e) => setNewEvent(prev => ({ ...prev, name: e.target.value }))}
+                        required
+                        placeholder="Enter event name"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="eventLocation" className="block text-sm font-medium text-gray-700 mb-2">
+                        Location *
+                      </label>
+                      <Input
+                        id="eventLocation"
+                        name="location"
+                        value={newEvent.location}
+                        onChange={(e) => setNewEvent(prev => ({ ...prev, location: e.target.value }))}
+                        required
+                        placeholder="Enter location"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="eventTime" className="block text-sm font-medium text-gray-700 mb-2">
+                        Date & Time *
+                      </label>
+                      <Input
+                        id="eventTime"
+                        name="time"
+                        type="datetime-local"
+                        value={newEvent.time}
+                        onChange={(e) => setNewEvent(prev => ({ ...prev, time: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="eventDistance" className="block text-sm font-medium text-gray-700 mb-2">
+                        Distance (kilometers) *
+                      </label>
+                      <Input
+                        id="eventDistance"
+                        name="distance"
+                        type="number"
+                        value={newEvent.distance}
+                        onChange={(e) => setNewEvent(prev => ({ ...prev, distance: e.target.value }))}
+                        required
+                        min={0.1}
+                        max={100}
+                        step={0.1}
+                        placeholder="e.g., 5, 10.5, 21"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Pace Groups *
+                    </label>
+                    <PaceGroupsSelect
+                      value={newEvent.paceGroups}
+                      onChange={(value) => setNewEvent(prev => ({ ...prev, paceGroups: value }))}
+                      className="bg-white p-4 rounded-lg border border-gray-200"
+                    />
+                  </div>
+                  
+                  <div className="flex gap-4">
+                    <Button
+                      type="button"
+                      onClick={() => setShowAddEvent(false)}
+                      variant="secondary"
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      className="flex-1"
+                      disabled={eventLoading}
+                    >
+                      {eventLoading ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                          </svg>
+                          Adding...
+                        </span>
+                      ) : (
+                        'Save Event'
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            )}
             
             {!group.events || group.events.length === 0 ? (
               <div className="text-center py-8 text-gray-500">

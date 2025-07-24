@@ -11,6 +11,7 @@ export default function CreateGroup() {
     name: '',
     description: ''
   });
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -22,34 +23,28 @@ export default function CreateGroup() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setLoading(true);
     try {
-              await createGroup(formData);
-        router.push('/groups');
+      await createGroup(formData);
+      router.push('/groups');
     } catch (error) {
       if (error instanceof ApiError) {
         alert(`Error: ${error.message}`);
       } else {
         alert('Failed to create group');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleBack = () => {
-    router.push('/');
-  };
+
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+    <div className="py-8">
       <div className="max-w-2xl mx-auto px-4">
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="flex items-center mb-8">
-            <button
-              onClick={handleBack}
-              className="mr-4 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              ← Back
-            </button>
+          <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Create a Run Group</h1>
           </div>
 
@@ -87,7 +82,7 @@ export default function CreateGroup() {
             <div className="flex gap-4 pt-6">
               <Button
                 type="button"
-                onClick={handleBack}
+                onClick={() => router.push('/groups')}
                 variant="secondary"
                 className="flex-1"
               >
@@ -97,8 +92,19 @@ export default function CreateGroup() {
                 type="submit"
                 variant="primary"
                 className="flex-1"
+                disabled={loading}
               >
-                Create Group
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                    Creating...
+                  </span>
+                ) : (
+                  'Create Group'
+                )}
               </Button>
             </div>
           </form>
