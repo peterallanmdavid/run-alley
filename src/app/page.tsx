@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components';
-import { getAllEvents } from '@/lib/api';
+import { getAllEvents } from '@/lib/supabase-data';
 import { GroupEvent } from '@/lib/data';
 
 interface EventWithGroup extends GroupEvent {
