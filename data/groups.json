@@ -1,0 +1,63 @@
+[
+  {
+    "id": "1753334297917",
+    "name": "Peter Allan David",
+    "description": "Test",
+    "createdAt": "2025-07-24T05:18:17.917Z",
+    "members": [
+      {
+        "id": "1753334360644",
+        "name": "TRest",
+        "age": "6",
+        "gender": "Female"
+      }
+    ]
+  },
+  {
+    "id": "1753334553545",
+    "name": "RunValley",
+    "description": "Where runners meet",
+    "createdAt": "2025-07-24T05:22:33.545Z",
+    "members": [
+      {
+        "id": "1753334566139",
+        "name": "Peter Allan David",
+        "age": "18",
+        "gender": "Male"
+      },
+      {
+        "id": "1753334578418",
+        "name": "Matthew Pereja",
+        "age": "29",
+        "gender": "Male"
+      },
+      {
+        "id": "1753334590225",
+        "name": "Bianca",
+        "age": "29",
+        "gender": "Female"
+      },
+      {
+        "id": "1753334599341",
+        "name": "Sizzy",
+        "age": "40",
+        "gender": "Other"
+      }
+    ],
+    "events": [
+      {
+        "id": "1753335567304",
+        "name": "Peter Run",
+        "location": "Calabarzon, Philippines",
+        "time": "2025-07-24T06:00",
+        "distance": "5",
+        "paceGroups": [
+          "Easy (8:00 min/km)",
+          "Intermediate (7:00 min/km)",
+          "My own pace"
+        ],
+        "createdAt": "2025-07-24T05:39:27.304Z"
+      }
+    ]
+  }
+]
