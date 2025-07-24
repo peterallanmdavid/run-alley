@@ -95,4 +95,9 @@ export async function removeEvent(groupId: string, eventId: string): Promise<voi
     method: 'DELETE',
   });
   return handleResponse<void>(response);
+}
+
+export async function getAllEvents(): Promise<Array<GroupEvent & { groupName: string; groupId: string }>> {
+  const response = await fetch(`${API_BASE}/events`);
+  return handleResponse<Array<GroupEvent & { groupName: string; groupId: string }>>(response);
 } 

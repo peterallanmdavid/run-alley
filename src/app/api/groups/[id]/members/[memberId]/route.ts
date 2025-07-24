@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { removeMember } from '@/lib/data';
+import { removeMember } from '@/lib/supabase-data';
 
 export async function DELETE(
   request: NextRequest,

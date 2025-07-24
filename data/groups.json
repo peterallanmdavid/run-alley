@@ -46,17 +46,31 @@
     ],
     "events": [
       {
-        "id": "1753335567304",
-        "name": "Peter Run",
+        "id": "1753337814135",
+        "name": "Peter Allan David",
         "location": "Calabarzon, Philippines",
-        "time": "2025-07-24T06:00",
+        "time": "2025-07-25T14:16",
         "distance": "5",
         "paceGroups": [
           "Easy (8:00 min/km)",
           "Intermediate (7:00 min/km)",
-          "My own pace"
+          "Advanced (6:00 min/km)",
+          "Beginner (9:00 min/km)",
+          "All Paces Welcome"
         ],
-        "createdAt": "2025-07-24T05:39:27.304Z"
+        "createdAt": "2025-07-24T06:16:54.135Z"
+      },
+      {
+        "id": "1753338302581",
+        "name": "LSD",
+        "location": "Calabarzon, Philippines",
+        "time": "2025-07-24T07:00",
+        "distance": "5",
+        "paceGroups": [
+          "Intermediate (7:00 min/km)",
+          "Advanced (6:00 min/km)"
+        ],
+        "createdAt": "2025-07-24T06:25:02.581Z"
       }
     ]
   }

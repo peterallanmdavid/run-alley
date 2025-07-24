@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { removeEvent } from '@/lib/data';
+import { removeEvent } from '@/lib/supabase-data';
 
 export async function DELETE(
   request: NextRequest,

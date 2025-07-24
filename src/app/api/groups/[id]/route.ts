@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getGroup, updateGroup, deleteGroup } from '@/lib/data';
+import { getGroup, updateGroup, deleteGroup } from '@/lib/supabase-data';
 
 export async function GET(
   request: NextRequest,

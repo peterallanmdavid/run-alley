@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getMembers, addMember } from '@/lib/data';
+import { getMembers, addMember } from '@/lib/supabase-data';
 
 export async function GET(
   request: NextRequest,

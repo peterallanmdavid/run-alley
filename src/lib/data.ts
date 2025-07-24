@@ -1,6 +1,3 @@
-import fs from 'fs/promises';
-import path from 'path';
-
 export interface Member {
   id: string;
   name: string;
@@ -27,34 +24,37 @@ export interface RunGroup {
   events: GroupEvent[];
 }
 
-const DATA_FILE_PATH = path.join(process.cwd(), 'data', 'groups.json');
+// In-memory storage for production compatibility
+let groupsData: RunGroup[] = [];
 
-// Ensure data directory exists
-async function ensureDataDirectory() {
-  const dataDir = path.dirname(DATA_FILE_PATH);
-  try {
-    await fs.access(dataDir);
-  } catch {
-    await fs.mkdir(dataDir, { recursive: true });
+// Initialize with sample data in development
+async function initializeData() {
+  if (process.env.NODE_ENV === 'development') {
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+      const dataPath = path.default.join(process.cwd(), 'data', 'groups.json');
+      if (fs.default.existsSync(dataPath)) {
+        const data = fs.default.readFileSync(dataPath, 'utf-8');
+        groupsData = JSON.parse(data);
+      }
+    } catch (error) {
+      console.log('No existing data file found, starting with empty data');
+    }
   }
 }
 
-// Read groups from file
+// Initialize data
+initializeData();
+
+// Read groups from memory
 async function readGroups(): Promise<RunGroup[]> {
-  try {
-    await ensureDataDirectory();
-    const data = await fs.readFile(DATA_FILE_PATH, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    // If file doesn't exist, return empty array
-    return [];
-  }
+  return groupsData;
 }
 
-// Write groups to file
+// Write groups to memory
 async function writeGroups(groups: RunGroup[]): Promise<void> {
-  await ensureDataDirectory();
-  await fs.writeFile(DATA_FILE_PATH, JSON.stringify(groups, null, 2));
+  groupsData = groups;
 }
 
 // CRUD Operations
@@ -200,4 +200,22 @@ export async function removeEvent(groupId: string, eventId: string): Promise<boo
 export async function getEvents(groupId: string): Promise<GroupEvent[]> {
   const group = await getGroup(groupId);
   return group?.events || [];
+}
+
+export async function getAllEvents(): Promise<Array<GroupEvent & { groupName: string; groupId: string }>> {
+  const groups = await readGroups();
+  const allEvents: Array<GroupEvent & { groupName: string; groupId: string }> = [];
+  
+  groups.forEach(group => {
+    group.events.forEach(event => {
+      allEvents.push({
+        ...event,
+        groupName: group.name,
+        groupId: group.id
+      });
+    });
+  });
+  
+  // Sort by event time (earliest first)
+  return allEvents.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
 } 
