@@ -4,10 +4,12 @@ export default function EventsCard({
   event,
   handleRemoveEvent,
   formatEventTime,
+  creator
 }: {
   event: GroupEvent;
   handleRemoveEvent?: (id: string) => void;
   formatEventTime: (time: string) => string;
+  creator?: string;
 }) {
   return (
     <div key={event.id} className="bg-blue-50 rounded-xl p-4">
@@ -25,9 +27,15 @@ export default function EventsCard({
       }
     </div>
     <div className="text-sm text-gray-600 space-y-1">
+    {
+        creator && (
+          <p className="font-medium mb-4 mt-4">Organized By: {creator}</p>
+        )
+      }
       <p>📍 Location: {event.location}</p>
       <p>🕐 Time: {formatEventTime(event.time)}</p>
       <p>📏 Distance: {event.distance} km</p>
+    
       <div>
         <p className="font-medium">🏃‍♂️ Pace Groups:</p>
         <div className="mt-1">

@@ -1,4 +1,4 @@
-export { Input, TextArea, Select } from './Input';
+export { Input, TextArea, Select, PasswordInput } from './Input';
 export { Button } from './Button';
 export { PaceGroupsSelect } from './PaceGroupsSelect';
 export { Header } from './Header';

@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Input, Button } from '@/components';
+import { Input, Button, PasswordInput } from '@/components';
 import { changePassword } from '@/lib/api';
 
 function ChangePasswordForm() {
@@ -51,28 +51,25 @@ function ChangePasswordForm() {
             {error}
           </div>
         )}
-        <Input
+        <PasswordInput
           id="oldPassword"
           name="oldPassword"
-          type="password"
           value={oldPassword}
           onChange={e => setOldPassword(e.target.value)}
           required
           placeholder="Old Password"
         />
-        <Input
+        <PasswordInput
           id="newPassword"
           name="newPassword"
-          type="password"
           value={newPassword}
           onChange={e => setNewPassword(e.target.value)}
           required
           placeholder="New Password"
         />
-        <Input
+        <PasswordInput
           id="repeatPassword"
           name="repeatPassword"
-          type="password"
           value={repeatPassword}
           onChange={e => setRepeatPassword(e.target.value)}
           required

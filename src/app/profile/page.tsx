@@ -117,7 +117,6 @@ export default function ProfilePage() {
             <Link href={`/profile/manage`}>
               <Button variant="primary">Manage Group</Button>
             </Link>
-            <Button onClick={handleLogout} variant="secondary">Logout</Button>
           </div>
         </div>
 

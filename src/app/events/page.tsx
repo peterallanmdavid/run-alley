@@ -72,6 +72,7 @@ export default function EventsPage() {
                   key={event.id}
                   event={event}
                   formatEventTime={formatEventTime}
+                  creator={event.groupName}
                 />
               ))}
             </div>

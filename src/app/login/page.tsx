@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Input } from "@/components";
+import { Button, Input, PasswordInput } from "@/components";
 import { login } from "@/lib/api";
 
 export default function LoginPage() {
@@ -57,10 +57,9 @@ export default function LoginPage() {
           className="flex-1 mb-4"
           placeholder="Email"
         />
-        <Input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
           value={password}
           onChange={e => setPassword(e.target.value)}
           required
