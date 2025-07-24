@@ -7,7 +7,7 @@ import { RunGroup } from '@/lib/data';
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
 async function getCurrentUserServer(): Promise<{ id: string; email: string; role: string; name: string } | null> {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const token = cookieStore.get('session-token')?.value;
   if (!token) return null;
   try {

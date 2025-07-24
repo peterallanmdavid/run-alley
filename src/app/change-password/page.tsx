@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Input, Button } from '@/components';
 import { changePassword } from '@/lib/api';
 
-export default function ChangePasswordPage() {
+function ChangePasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email') || '';
@@ -98,5 +98,25 @@ export default function ChangePasswordPage() {
         </Button>
       </form>
     </div>
+  );
+}
+
+export default function ChangePasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md flex flex-col gap-6">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded mb-4"></div>
+            <div className="h-12 bg-gray-200 rounded mb-4"></div>
+            <div className="h-12 bg-gray-200 rounded mb-4"></div>
+            <div className="h-12 bg-gray-200 rounded mb-4"></div>
+            <div className="h-12 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    }>
+      <ChangePasswordForm />
+    </Suspense>
   );
 } 

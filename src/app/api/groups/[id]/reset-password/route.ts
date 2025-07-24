@@ -13,10 +13,10 @@ function generatePassword(length = 10) {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const groupId = params.id;
+    const { id: groupId } = await params;
 
     // Generate a new password
     const newPassword = generatePassword();
