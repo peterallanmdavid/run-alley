@@ -19,6 +19,40 @@ function isPrivateRoute(path: string) {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Handle root route redirects based on authentication
+  if (pathname === '/') {
+    const token = request.cookies.get('session-token')?.value;
+    
+    if (!token) {
+      // Not logged in - redirect to groups
+      return NextResponse.redirect(new URL('/groups', request.url));
+    }
+
+    // Check if token is valid
+    try {
+      const secret = new TextEncoder().encode(JWT_SECRET);
+      const { payload: jwtPayload } = await jwtVerify(token, secret);
+      
+      // Check if session exists in DB
+      const { data: session, error: sessionError } = await supabase
+        .from('sessions')
+        .select('*')
+        .eq('token', token)
+        .single();
+        
+      if (sessionError || !session) {
+        // Invalid session - redirect to groups
+        return NextResponse.redirect(new URL('/groups', request.url));
+      }
+
+      // Valid session - redirect to profile
+      return NextResponse.redirect(new URL('/profile', request.url));
+    } catch {
+      // Invalid token - redirect to groups
+      return NextResponse.redirect(new URL('/groups', request.url));
+    }
+  }
+
   if (!isPrivateRoute(pathname)) {
     return NextResponse.next();
   }
@@ -65,6 +99,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/',
     '/admin',
     '/admin/:path*',
     '/profile',
