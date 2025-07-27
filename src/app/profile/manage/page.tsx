@@ -1,33 +1,41 @@
-import { getGroup } from '@/lib/supabase-data';
-import { cookies } from 'next/headers';
-import { jwtVerify } from 'jose';
+import { getCurrentUserServer, getMembersServer, getEventsServer } from '@/lib/server-utils';
+import { redirect } from 'next/navigation';
 import ManageGroupClient from './ManageGroupClient';
-import { RunGroup } from '@/lib/data';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-
-async function getCurrentUserServer(): Promise<{ id: string; email: string; role: string; name: string } | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('session-token')?.value;
-  if (!token) return null;
-  try {
-    const secret = new TextEncoder().encode(JWT_SECRET);
-    const { payload } = await jwtVerify(token, secret);
-    return payload as { id: string; email: string; role: string; name: string };
-  } catch {
-    return null;
-  }
-}
 
 export default async function ManageGroupPage() {
   const currentUser = await getCurrentUserServer();
+  
   if (!currentUser) {
-    // Optionally, redirect to login or show an error
-    return <div className="text-center py-8">Not authenticated.</div>;
+    redirect('/login');
   }
-  const group = await getGroup(currentUser.id);
-  if (!group) {
-    return <div className="text-center py-8">Group not found.</div>;
-  }
-  return <ManageGroupClient group={group} currentUser={currentUser} />;
+
+  // Get latest 5 members and 5 events
+  const [members, events] = await Promise.all([
+    getMembersServer(currentUser.group.id),
+    getEventsServer(currentUser.group.id)
+  ]);
+
+  const latestMembers = members.slice(0, 5);
+  const latestEvents = events.slice(0, 5);
+
+  const group = {
+    id: currentUser.group.id,
+    name: currentUser.group.name,
+    email: currentUser.group.email,
+    description: currentUser.group.description || '',
+    createdAt: new Date().toISOString(),
+    members: latestMembers,
+    events: latestEvents,
+    firstLogin: false,
+    role: currentUser.group.role
+  };
+
+  return (
+    <ManageGroupClient 
+      group={group} 
+      currentUser={currentUser}
+      totalMembers={members.length}
+      totalEvents={events.length}
+    />
+  );
 } 

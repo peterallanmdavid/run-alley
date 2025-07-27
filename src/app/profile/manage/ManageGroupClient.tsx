@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { Input, TextArea, Button, PaceGroupsSelect } from '@/components';
+import { Input, TextArea, Button, PaceGroupsSelect, ContainerCard } from '@/components';
 import { updateGroup, addMember, removeMember, addEvent, removeEvent, ApiError } from '@/lib/api';
 import { RunGroup } from '@/lib/data';
 import EventsCard from '@/components/EventsCard';
@@ -10,10 +10,12 @@ import EventsCard from '@/components/EventsCard';
 
 interface ManageGroupClientProps {
   group: RunGroup;
-  currentUser: { id: string; name: string; email: string; role: string };
+  currentUser: { group: { id: string; name: string; email: string; role: 'Admin' | 'GroupOwner' } };
+  totalMembers: number;
+  totalEvents: number;
 }
 
-export default function ManageGroupClient({ group: initialGroup, currentUser }: ManageGroupClientProps) {
+export default function ManageGroupClient({ group: initialGroup, currentUser, totalMembers, totalEvents }: ManageGroupClientProps) {
   
   const [group, setGroup] = useState<RunGroup>(initialGroup);
   const [isEditing, setIsEditing] = useState(false);
@@ -62,7 +64,7 @@ export default function ManageGroupClient({ group: initialGroup, currentUser }: 
     e.preventDefault();
     setEditLoading(true);
     try {
-      const updatedGroup = await updateGroup(currentUser.id, formData);
+      const updatedGroup = await updateGroup(currentUser.group.id, formData);
       setGroup(updatedGroup);
       setIsEditing(false);
     } catch (error) {
@@ -89,7 +91,7 @@ export default function ManageGroupClient({ group: initialGroup, currentUser }: 
     if (!newMember.name || !newMember.age || !newMember.gender) return;
     setMemberLoading(true);
     try {
-      const member = await addMember(currentUser.id, newMember);
+      const member = await addMember(currentUser.group.id, newMember);
       setGroup(prev => ({
         ...prev,
         members: [...(prev.members || []), member]
@@ -109,7 +111,7 @@ export default function ManageGroupClient({ group: initialGroup, currentUser }: 
 
   const handleRemoveMember = async (memberId: string) => {
     try {
-      await removeMember(currentUser.id, memberId);
+      await removeMember(currentUser.group.id, memberId);
       setGroup(prev => ({
         ...prev,
         members: prev.members.filter(m => m.id !== memberId)
@@ -128,7 +130,7 @@ export default function ManageGroupClient({ group: initialGroup, currentUser }: 
     if (!newEvent.name || !newEvent.location || !newEvent.time || !newEvent.distance || newEvent.paceGroups.length === 0) return;
     setEventLoading(true);
     try {
-      const event = await addEvent(currentUser.id, newEvent);
+      const event = await addEvent(currentUser.group.id, newEvent);
       setGroup(prev => ({
         ...prev,
         events: [...(prev.events || []), event]
@@ -148,7 +150,7 @@ export default function ManageGroupClient({ group: initialGroup, currentUser }: 
 
   const handleRemoveEvent = async (eventId: string) => {
     try {
-      await removeEvent(currentUser.id, eventId);
+      await removeEvent(currentUser.group.id, eventId);
       setGroup(prev => ({
         ...prev,
         events: prev.events.filter(e => e.id !== eventId)
@@ -300,7 +302,10 @@ export default function ManageGroupClient({ group: initialGroup, currentUser }: 
           {/* Members List */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-gray-900">Members ({group.members?.length || 0})</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xl font-semibold text-gray-900">Members ({totalMembers})</h3>
+                <a href="/my-members" className="ml-2 text-blue-600 hover:underline text-sm font-medium">View All</a>
+              </div>
               <Button
                 onClick={() => setShowAddMember(true)}
                 variant="success"
@@ -401,32 +406,44 @@ export default function ManageGroupClient({ group: initialGroup, currentUser }: 
                 <p>No members yet. Add the first member!</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {group.members.map((member) => (
-                  <div key={member.id} className="bg-gray-50 rounded-xl p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-semibold text-gray-900">{member.name}</h4>
-                      <button
-                        onClick={() => handleRemoveMember(member.id)}
-                        className="text-red-500 hover:text-red-700 text-sm"
-                      >
-                        Remove
-                      </button>
+              <ContainerCard>
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h4 className="text-lg font-semibold text-gray-900">Recent Members</h4>
+                </div>
+                <div className="divide-y divide-gray-200">
+                  {group.members.slice(0, 5).map((member) => (
+                    <div key={member.id} className="px-6 py-4 hover:bg-gray-50 transition-colors duration-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                            {member.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <h4 className="text-lg font-semibold text-gray-900">{member.name}</h4>
+                            <p className="text-sm text-gray-600">Age: {member.age} • Gender: {member.gender}</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleRemoveMember(member.id)}
+                          className="text-red-500 hover:text-red-700 text-sm font-medium"
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600">
-                      <p>Age: {member.age}</p>
-                      <p>Gender: {member.gender}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </ContainerCard>
             )}
           </div>
 
           {/* Events List */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-semibold text-gray-900">Group Events ({group.events?.length || 0})</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xl font-semibold text-gray-900">Group Events ({totalEvents})</h3>
+                <a href="/my-events" className="ml-2 text-blue-600 hover:underline text-sm font-medium">View All</a>
+              </div>
               <Button
                 onClick={() => setShowAddEvent(true)}
                 variant="primary"
@@ -550,16 +567,43 @@ export default function ManageGroupClient({ group: initialGroup, currentUser }: 
                 <p>No events yet. Add the first event!</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {group.events.map((event) => (
-                  <EventsCard
-                    key={event.id}
-                    event={event}
-                    handleRemoveEvent={handleRemoveEvent}
-                    formatEventTime={formatEventTime}
-                  />
-                ))}
-              </div>
+              <ContainerCard>
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <h4 className="text-lg font-semibold text-gray-900">Recent Events</h4>
+                </div>
+                <div className="divide-y divide-gray-200">
+                  {group.events.slice(0, 5).map((event) => (
+                    <div key={event.id} className="px-6 py-4 hover:bg-gray-50 transition-colors duration-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                            🏃
+                          </div>
+                          <div>
+                            <h4 className="text-lg font-semibold text-gray-900">{event.name}</h4>
+                            <p className="text-sm text-gray-600">
+                              📍 {event.location} • 📅 {formatEventTime(event.time)} • 📏 {event.distance} km
+                            </p>
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {event.paceGroups.map((pace, index) => (
+                                <span key={index} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                  {pace}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleRemoveEvent(event.id)}
+                          className="text-red-500 hover:text-red-700 text-sm font-medium"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ContainerCard>
             )}
           </div>
         </div>

@@ -18,7 +18,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return response.json();
 }
 
-// Group operations
+// Client-side API functions
 export async function createGroup(data: { name: string; description: string; email: string }): Promise<{ group: RunGroup; tempPassword: string }> {
   const response = await fetch(`${API_BASE}/groups`, {
     method: 'POST',

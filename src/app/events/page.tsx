@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components';
+import { Button, ContainerCard } from '@/components';
 import { getAllEvents, ApiError } from '@/lib/api';
 import { GroupEvent } from '@/lib/data';
 import EventsCard from '@/components/EventsCard';
@@ -50,7 +50,7 @@ export default function EventsPage() {
   return (
     <div className="py-8">
       <div className="max-w-4xl mx-auto px-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        
           <h1 className="text-3xl font-bold text-gray-900 mb-6">All Events</h1>
           {loading ? (
             <div className="text-center py-8">
@@ -66,18 +66,39 @@ export default function EventsPage() {
               <p className="text-gray-600">Check back later for upcoming run events!</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {events.map((event) => (
-                <EventsCard
-                  key={event.id}
-                  event={event}
-                  formatEventTime={formatEventTime}
-                  creator={event.groupName}
-                />
-              ))}
-            </div>
+            <ContainerCard>
+              <div className="divide-y divide-gray-200">
+                {events.map((event) => (
+                  <div key={event.id} className="px-6 py-4 hover:bg-gray-50 transition-colors duration-200">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                        🏃
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className="text-lg font-semibold text-gray-900">{event.name}</h4>
+                          <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                            {event.groupName}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600">
+                          📍 {event.location} • 📅 {formatEventTime(event.time)} • 📏 {event.distance} km
+                        </p>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {event.paceGroups.map((pace, index) => (
+                            <span key={index} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                              {pace}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ContainerCard>
           )}
-        </div>
+        
       </div>
     </div>
   );

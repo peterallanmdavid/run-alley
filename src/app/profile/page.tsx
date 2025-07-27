@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/components';
+import { Button, ContainerCard } from '@/components';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { logout, getGroup, getCurrentUser } from '@/lib/api';
@@ -121,7 +121,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Group Details Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
+        <ContainerCard className="p-8 mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Group Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -138,7 +138,7 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-        </div>
+        </ContainerCard>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -169,7 +169,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <ContainerCard className="p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Activity</h2>
           <div className="flex flex-col gap-6">
             {loadingGroup ? (
@@ -186,20 +186,34 @@ export default function ProfilePage() {
                 <p className="text-gray-600">Start by adding members and creating events for your group!</p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {/* Recent Members */}
                 {recentMembers.length > 0 && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Recent Members</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      {recentMembers.map((member) => (
-                        <div key={member.id} className="bg-gray-50 rounded-lg p-3">
-                          <div className="font-medium text-gray-900">{member.name}</div>
-                          <div className="text-sm text-gray-600">
-                            Age: {member.age} • {member.gender}
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-semibold text-gray-900">Recent Members</h3>
+                      <Link href="/my-members" className="text-blue-600 hover:underline text-sm font-medium">
+                        View All
+                      </Link>
+                    </div>
+                    <div className="bg-gray-50 rounded-xl overflow-hidden">
+                      <div className="divide-y divide-gray-200">
+                        {recentMembers.map((member) => (
+                          <div key={member.id} className="px-4 py-3 hover:bg-gray-100 transition-colors duration-200">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                {member.name.charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <div className="font-medium text-gray-900">{member.name}</div>
+                                <div className="text-sm text-gray-600">
+                                  Age: {member.age} • Gender: {member.gender}
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -207,33 +221,44 @@ export default function ProfilePage() {
                 {/* Recent Events */}
                 {recentEvents.length > 0 && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Recent Events</h3>
-                    <div className="space-y-3">
-                      {recentEvents.map((event) => (
-                        <div key={event.id} className="bg-blue-50 rounded-lg p-4">
-                          <div className="font-medium text-gray-900">{event.name}</div>
-                          <div className="text-sm text-gray-600">
-                            📍 {event.location} • 🕐 {formatEventTime(event.time)} • 📏 {event.distance} km
-                          </div>
-                          <div className="mt-2">
-                            <span className="text-xs font-medium text-blue-800">Pace Groups:</span>
-                            <div className="mt-1">
-                              {event.paceGroups.map((pace, index) => (
-                                <span key={index} className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mr-1 mb-1">
-                                  {pace}
-                                </span>
-                              ))}
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-semibold text-gray-900">Recent Events</h3>
+                      <Link href="/my-events" className="text-blue-600 hover:underline text-sm font-medium">
+                        View All
+                      </Link>
+                    </div>
+                    <div className="bg-blue-50 rounded-xl overflow-hidden">
+                      <div className="divide-y divide-blue-200">
+                        {recentEvents.map((event) => (
+                          <div key={event.id} className="px-4 py-3 hover:bg-blue-100 transition-colors duration-200">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-8 h-8 bg-gradient-to-r from-green-600 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                🏃
+                              </div>
+                              <div className="flex-1">
+                                <div className="font-medium text-gray-900">{event.name}</div>
+                                <div className="text-sm text-gray-600">
+                                  📍 {event.location} • 🕐 {formatEventTime(event.time)} • 📏 {event.distance} km
+                                </div>
+                                <div className="mt-1">
+                                  {event.paceGroups.map((pace, index) => (
+                                    <span key={index} className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mr-1 mb-1">
+                                      {pace}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
             )}
           </div>
-        </div>
+        </ContainerCard>
       </div>
     </div>
   );
