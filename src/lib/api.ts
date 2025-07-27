@@ -29,12 +29,16 @@ export async function createGroup(data: { name: string; description: string; ema
 }
 
 export async function getGroups(): Promise<RunGroup[]> {
-  const response = await fetch(`${API_BASE}/groups`);
+  const response = await fetch(`${API_BASE}/groups`, {
+    cache: 'no-store'
+  });
   return handleResponse<RunGroup[]>(response);
 }
 
 export async function getGroup(id: string): Promise<RunGroup> {
-  const response = await fetch(`${API_BASE}/groups/${id}`);
+  const response = await fetch(`${API_BASE}/groups/${id}`, {
+    cache: 'no-store'
+  });
   return handleResponse<RunGroup>(response);
 }
 
@@ -56,7 +60,9 @@ export async function deleteGroup(id: string): Promise<void> {
 
 // Member operations
 export async function getMembers(groupId: string): Promise<Member[]> {
-  const response = await fetch(`${API_BASE}/groups/${groupId}/members`);
+  const response = await fetch(`${API_BASE}/groups/${groupId}/members`, {
+    cache: 'no-store'
+  });
   return handleResponse<Member[]>(response);
 }
 
@@ -78,7 +84,9 @@ export async function removeMember(groupId: string, memberId: string): Promise<v
 
 // Event operations
 export async function getEvents(groupId: string): Promise<GroupEvent[]> {
-  const response = await fetch(`${API_BASE}/groups/${groupId}/events`);
+  const response = await fetch(`${API_BASE}/groups/${groupId}/events`, {
+    cache: 'no-store'
+  });
   return handleResponse<GroupEvent[]>(response);
 }
 
@@ -99,7 +107,9 @@ export async function removeEvent(groupId: string, eventId: string): Promise<voi
 }
 
 export async function getAllEvents(): Promise<Array<GroupEvent & { groupName: string; groupId: string }>> {
-  const response = await fetch(`${API_BASE}/events`);
+  const response = await fetch(`${API_BASE}/events`, {
+    cache: 'no-store'
+  });
   return handleResponse<Array<GroupEvent & { groupName: string; groupId: string }>>(response);
 } 
 
@@ -141,7 +151,9 @@ export async function logout(): Promise<{ success: boolean }> {
 }
 
 export async function getCurrentUser(): Promise<{ group: RunGroup & { email: string; role: 'Admin' | 'GroupOwner' } } | null> {
-  const response = await fetch('/api/auth/me');
+  const response = await fetch('/api/auth/me', {
+    cache: 'no-store'
+  });
   if (!response.ok) return null;
   return response.json();
 }
