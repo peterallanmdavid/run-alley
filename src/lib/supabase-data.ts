@@ -473,3 +473,36 @@ export async function removeEventParticipant(eventId: string, participantId: str
   if (error) throw error;
   return true;
 } 
+
+export async function getEventById(eventId: string): Promise<(GroupEvent & { groupName: string; groupId: string }) | null> {
+  const { data, error } = await supabase
+    .from('events')
+    .select(`
+      *,
+      group:groups(name)
+    `)
+    .eq('id', eventId)
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') return null; // No rows returned
+    throw error;
+  }
+
+  // Get participants for the event
+  const participants = await getEventParticipants(eventId);
+
+  return {
+    id: data.id,
+    name: data.name,
+    location: data.location,
+    time: data.time,
+    distance: data.distance,
+    paceGroups: data.pace_groups || [],
+    createdAt: data.created_at,
+    secretKey: data.secret_key,
+    participants,
+    groupName: data.group.name,
+    groupId: data.group_id,
+  };
+} 

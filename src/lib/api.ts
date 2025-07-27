@@ -216,3 +216,8 @@ export async function removeEventParticipant(eventId: string, participantId: str
   });
   return handleResponse<{ message: string }>(response);
 }
+
+export async function getEventById(eventId: string): Promise<GroupEvent & { groupName: string; groupId: string }> {
+  const response = await fetch(`${API_BASE}/events/${eventId}`);
+  return handleResponse<GroupEvent & { groupName: string; groupId: string }>(response);
+}

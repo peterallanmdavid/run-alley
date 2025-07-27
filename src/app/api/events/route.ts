@@ -24,7 +24,10 @@ export async function GET(request: NextRequest) {
     const publicEvents = events.map(event => {
       if (!isAuthenticated) {
         const { secretKey, participants, ...publicEvent } = event;
-        return publicEvent;
+        return {
+          ...publicEvent,
+          participants: participants ? participants.length : 0 // Only return count, not details
+        };
       }
       return event;
     });
