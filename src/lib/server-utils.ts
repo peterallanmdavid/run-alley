@@ -74,11 +74,14 @@ export async function getMembersServer(groupId: string): Promise<Member[]> {
 
     if (error) throw error;
 
+    console.log('Raw member data from database:', data);
+
     return data.map(member => ({
       id: member.id,
       name: member.name,
       age: member.age,
       gender: member.gender,
+      email: member.email,
     }));
   } catch (error) {
     console.error('Error fetching members:', error);

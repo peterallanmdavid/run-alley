@@ -2,17 +2,19 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { addMember } from '@/lib/api';
+import { updateMember } from '@/lib/api';
+import { Member } from '@/lib/data';
 
-interface AddMemberFormProps {
+interface EditMemberFormProps {
+  member: Member;
   groupId: string;
 }
 
-export default function AddMemberForm({ groupId }: AddMemberFormProps) {
-  const [name, setName] = useState('');
-  const [age, setAge] = useState('');
-  const [gender, setGender] = useState('');
-  const [email, setEmail] = useState('');
+export default function EditMemberForm({ member, groupId }: EditMemberFormProps) {
+  const [name, setName] = useState(member.name);
+  const [age, setAge] = useState(member.age);
+  const [gender, setGender] = useState(member.gender);
+  const [email, setEmail] = useState(member.email || '');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -20,10 +22,10 @@ export default function AddMemberForm({ groupId }: AddMemberFormProps) {
     e.preventDefault();
     setLoading(true);
     try {
-      await addMember(groupId, { name, age, gender, email: email || undefined });
+      await updateMember(groupId, member.id, { name, age, gender, email: email || undefined });
       router.push('/my-members');
     } catch (err) {
-      alert('Failed to add member');
+      alert('Failed to update member');
     } finally {
       setLoading(false);
     }
@@ -33,7 +35,7 @@ export default function AddMemberForm({ groupId }: AddMemberFormProps) {
     <div className="py-8">
       <div className="max-w-md mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h1 className="text-2xl font-bold mb-6 text-gray-900">Add New Member</h1>
+          <h1 className="text-2xl font-bold mb-6 text-gray-900">Edit Member</h1>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block mb-1 font-medium text-gray-700">Member Name</label>
@@ -93,7 +95,7 @@ export default function AddMemberForm({ groupId }: AddMemberFormProps) {
                 className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200" 
                 disabled={loading}
               >
-                {loading ? 'Adding...' : 'Add Member'}
+                {loading ? 'Updating...' : 'Update Member'}
               </button>
             </div>
           </form>

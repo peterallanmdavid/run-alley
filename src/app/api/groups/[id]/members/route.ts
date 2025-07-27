@@ -24,7 +24,7 @@ export async function POST(
 ) {
   try {
     const body = await request.json();
-    const { name, age, gender } = body;
+    const { name, age, gender, email } = body;
 
     if (!name || !age || !gender) {
       return NextResponse.json(
@@ -34,7 +34,7 @@ export async function POST(
     }
 
     const { id } = await params;
-    const newMember = await addMember(id, { name, age, gender });
+    const newMember = await addMember(id, { name, age, gender, email });
     
     if (!newMember) {
       return NextResponse.json(

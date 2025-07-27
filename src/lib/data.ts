@@ -3,6 +3,7 @@ export interface Member {
   name: string;
   age: string;
   gender: string;
+  email?: string; // Optional email field
 }
 
 export interface GroupEvent {

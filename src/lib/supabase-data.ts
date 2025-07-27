@@ -153,14 +153,16 @@ export async function deleteGroup(id: string): Promise<boolean> {
 }
 
 // Member operations
-export async function addMember(groupId: string, memberData: { name: string; age: string; gender: string }): Promise<Member | null> {
+export async function addMember(groupId: string, memberData: { name: string; age: string; gender: string; email?: string }): Promise<Member | null> {
   const { data, error } = await supabase
     .from('members')
     .insert({
-      group_id: groupId,
       name: memberData.name,
       age: memberData.age,
-      gender: memberData.gender
+      gender: memberData.gender,
+      email: memberData.email || null,
+      group_id: groupId,
+      created_at: new Date().toISOString(),
     })
     .select()
     .single();
@@ -171,7 +173,36 @@ export async function addMember(groupId: string, memberData: { name: string; age
     id: data.id,
     name: data.name,
     age: data.age,
-    gender: data.gender
+    gender: data.gender,
+    email: data.email,
+  };
+}
+
+export async function updateMember(groupId: string, memberId: string, updates: { name?: string; age?: string; gender?: string; email?: string }): Promise<Member | null> {
+  const { data, error } = await supabase
+    .from('members')
+    .update({
+      name: updates.name,
+      age: updates.age,
+      gender: updates.gender,
+      email: updates.email || null,
+    })
+    .eq('id', memberId)
+    .eq('group_id', groupId)
+    .select()
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') return null; // No rows returned
+    throw error;
+  }
+
+  return {
+    id: data.id,
+    name: data.name,
+    age: data.age,
+    gender: data.gender,
+    email: data.email,
   };
 }
 
@@ -191,15 +222,16 @@ export async function getMembers(groupId: string): Promise<Member[]> {
     .from('members')
     .select('*')
     .eq('group_id', groupId)
-    .order('created_at', { ascending: true });
+    .order('created_at', { ascending: false });
 
   if (error) throw error;
 
-  return data.map(member => ({
+  return data.map((member) => ({
     id: member.id,
     name: member.name,
     age: member.age,
-    gender: member.gender
+    gender: member.gender,
+    email: member.email,
   }));
 }
 

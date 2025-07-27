@@ -66,9 +66,18 @@ export async function getMembers(groupId: string): Promise<Member[]> {
   return handleResponse<Member[]>(response);
 }
 
-export async function addMember(groupId: string, data: { name: string; age: string; gender: string }): Promise<Member> {
+export async function addMember(groupId: string, data: { name: string; age: string; gender: string; email?: string }): Promise<Member> {
   const response = await fetch(`${API_BASE}/groups/${groupId}/members`, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  return handleResponse<Member>(response);
+}
+
+export async function updateMember(groupId: string, memberId: string, data: { name?: string; age?: string; gender?: string; email?: string }): Promise<Member> {
+  const response = await fetch(`${API_BASE}/groups/${groupId}/members/${memberId}`, {
+    method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });

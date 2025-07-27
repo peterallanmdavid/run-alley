@@ -3,6 +3,7 @@ import { Button, ContainerCard } from '@/components';
 import { getCurrentUserServer, getMembersServer } from '@/lib/server-utils';
 import { Member } from '@/lib/data';
 import { redirect } from 'next/navigation';
+import RemoveMemberButton from './RemoveMemberButton';
 
 export default async function MyMembersPage() {
   const currentUser = await getCurrentUserServer();
@@ -23,6 +24,7 @@ export default async function MyMembersPage() {
   const buttonPrimary = "bg-blue-600 hover:bg-blue-700 text-white";
   const buttonLg = "px-8 py-4 text-lg w-full";
 
+  console.log(members);
   return (
     <div className="py-8">
       <div className="max-w-6xl mx-auto px-4">
@@ -65,11 +67,26 @@ export default async function MyMembersPage() {
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900">{member.name}</h3>
-                        <p className="text-sm text-gray-600">Age: {member.age} • Gender: {member.gender}</p>
+                        <p className="text-sm text-gray-600">
+                          Age: {member.age} • Gender: {member.gender}
+                          {member.email && ` • 📧 ${member.email}`}
+                        </p>
                       </div>
                     </div>
                     <div className="text-sm text-gray-500">
                       #{member.id.slice(-4)}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Link href={`/edit-member/${member.id}`}>
+                        <button className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-1 rounded-md transition-colors duration-200">
+                          Edit
+                        </button>
+                      </Link>
+                      <RemoveMemberButton 
+                        memberId={member.id} 
+                        groupId={currentUser.group.id} 
+                        memberName={member.name} 
+                      />
                     </div>
                   </div>
                 </div>
