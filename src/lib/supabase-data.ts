@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 import { RunGroup, Member, GroupEvent, EventParticipant } from './data';
 import bcrypt from 'bcryptjs';
+import { connection } from 'next/server';
 
 // Group operations
 export async function createGroup(groupData: { name: string; description: string; email: string; role?: 'Admin' | 'GroupOwner' }): Promise<{ group: RunGroup; tempPassword: string }> {
@@ -40,6 +41,8 @@ export async function createGroup(groupData: { name: string; description: string
 }
 
 export async function getGroups(): Promise<(RunGroup & { memberCount: number; eventCount: number })[]> {
+  await connection();
+  
   // Fetch groups
   const { data: groups, error } = await supabase
     .from('groups')
@@ -83,6 +86,8 @@ export async function getGroups(): Promise<(RunGroup & { memberCount: number; ev
 }
 
 export async function getGroup(id: string): Promise<RunGroup | null> {
+  await connection();
+  
   const { data, error } = await supabase
     .from('groups')
     .select('*')
@@ -218,6 +223,8 @@ export async function removeMember(groupId: string, memberId: string): Promise<b
 }
 
 export async function getMembers(groupId: string): Promise<Member[]> {
+  await connection();
+  
   const { data, error } = await supabase
     .from('members')
     .select('*')
@@ -319,6 +326,8 @@ export async function addEventParticipant(eventId: string, memberId: string, sec
 }
 
 export async function getEventBySecretCode(secretCode: string): Promise<GroupEvent | null> {
+  await connection();
+  
   const { data, error } = await supabase
     .from('events')
     .select('*')
@@ -342,6 +351,8 @@ export async function getEventBySecretCode(secretCode: string): Promise<GroupEve
 }
 
 export async function getEventParticipants(eventId: string): Promise<EventParticipant[]> {
+  await connection();
+  
   const { data, error } = await supabase
     .from('event_participants')
     .select('*')
@@ -423,6 +434,8 @@ export async function updateEvent(groupId: string, eventId: string, updates: { n
 }
 
 export async function getEvents(groupId: string): Promise<GroupEvent[]> {
+  await connection();
+  
   const { data, error } = await supabase
     .from('events')
     .select('*')
@@ -453,6 +466,8 @@ export async function getEvents(groupId: string): Promise<GroupEvent[]> {
 }
 
 export async function getAllEvents(): Promise<Array<GroupEvent & { groupName: string; groupId: string }>> {
+  await connection();
+  
   const { data, error } = await supabase
     .from('events')
     .select(`
@@ -498,6 +513,8 @@ export async function removeEventParticipant(eventId: string, participantId: str
 } 
 
 export async function getEventById(eventId: string): Promise<(GroupEvent & { groupName: string; groupId: string }) | null> {
+  await connection();
+  
   const { data, error } = await supabase
     .from('events')
     .select(`
