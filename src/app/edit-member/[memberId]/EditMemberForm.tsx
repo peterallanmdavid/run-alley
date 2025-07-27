@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateMember } from '@/lib/api';
 import { Member } from '@/lib/data';
+import Link from 'next/link';
+import { Button } from '@/components';
 
 interface EditMemberFormProps {
   member: Member;
@@ -83,20 +85,18 @@ export default function EditMemberForm({ member, groupId }: EditMemberFormProps)
               />
             </div>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
-              <button 
-                type="button" 
-                onClick={() => router.push('/my-members')}
-                className="flex-1 bg-gray-500 text-white py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors duration-200 text-sm sm:text-base"
-              >
-                Cancel
-              </button>
-              <button 
+              <Link href="/my-members" className='flex-1'>
+                <Button variant="secondary" className="w-full">
+                  Cancel
+                </Button>
+              </Link>
+              <Button 
                 type="submit" 
-                className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 text-sm sm:text-base" 
                 disabled={loading}
+                className="flex-1"
               >
                 {loading ? 'Updating...' : 'Update Member'}
-              </button>
+              </Button>
             </div>
           </form>
         </div>

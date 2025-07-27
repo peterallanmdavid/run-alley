@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { addEvent } from '@/lib/api';
-import { PaceGroupsSelect } from '@/components';
+import { Button, ContainerCard, PaceGroupsSelect } from '@/components';
+import Link from 'next/link';
 
 interface AddEventFormProps {
   groupId: string;
@@ -32,9 +33,9 @@ export default function AddEventForm({ groupId }: AddEventFormProps) {
   }
 
   return (
-    <div className="py-8">
+    <div className="py-8 px-4">
       <div className="max-w-md mx-auto">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <ContainerCard className="p-4">
           <h1 className="text-2xl font-bold mb-6 text-gray-900">Create Event</h1>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -57,11 +58,22 @@ export default function AddEventForm({ groupId }: AddEventFormProps) {
               <label className="block mb-1 font-medium text-gray-700">Pace Groups</label>
               <PaceGroupsSelect value={paceGroups} onChange={setPaceGroups} />
             </div>
-            <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200" disabled={loading}>
-              {loading ? 'Creating...' : 'Create Event'}
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
+              <Link href="/my-events" className='flex-1'>
+                <Button variant="secondary" className="w-full">
+                  Cancel
+                </Button>
+              </Link>
+              <Button 
+                type="submit" 
+                disabled={loading}
+                className="flex-1"
+              >
+                 {loading ? 'Creating...' : 'Create Event'}
+              </Button>
+            </div>
           </form>
-        </div>
+        </ContainerCard>
       </div>
     </div>
   );

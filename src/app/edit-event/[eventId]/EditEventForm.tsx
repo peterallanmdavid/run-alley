@@ -7,6 +7,7 @@ import { PaceGroupsSelect, AddParticipantModal, Button } from '@/components';
 import { GroupEvent, Member } from '@/lib/data';
 import { removeEventParticipantAction } from '@/lib/actions';
 import RemoveParticipantModal from './RemoveParticipantModal';
+import Link from 'next/link';
 
 interface EditEventFormProps {
   event: GroupEvent;
@@ -106,23 +107,23 @@ export default function EditEventForm({ event, groupId, members, currentParticip
             </div>
             
             <div className="flex gap-4 pt-4">
-              <button 
-                type="button" 
-                onClick={() => router.push('/my-events')}
-                className="flex-1 bg-gray-500 text-white py-2 rounded-lg font-semibold hover:bg-gray-600 transition-colors duration-200"
-              >
-                Cancel
-              </button>
-              <button 
-                type="submit" 
-                className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200" 
-                disabled={loading}
-              >
-                {loading ? 'Updating...' : 'Update Event'}
-              </button>
+                <Link href="/my-events" className='flex-1'>
+                <Button variant="secondary" className="w-full">
+                  Cancel
+                </Button>
+              </Link>
+                <Button 
+                  type="submit" 
+                  className="flex-1 bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200" 
+                  disabled={loading}
+                >
+                  {loading ? 'Updating...' : 'Update Event'}
+                </Button>
             </div>
           </form>
-          
+
+          {/* add some divider element */}
+          <div className="h-px bg-gray-200 my-8"></div>
           <div className="mt-8">
             <div className="flex justify-between items-center mb-3">
               <label className="block font-medium text-gray-700">Participants</label>
