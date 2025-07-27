@@ -24,7 +24,6 @@ export default async function MyMembersPage() {
   const buttonPrimary = "bg-blue-600 hover:bg-blue-700 text-white";
   const buttonLg = "px-8 py-4 text-lg w-full";
 
-  console.log(members);
   return (
     <div className="py-8">
       <div className="max-w-6xl mx-auto px-4">
