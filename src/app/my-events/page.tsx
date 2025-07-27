@@ -98,7 +98,7 @@ export default async function MyEventsPage() {
                     </div>
                     
                     {/* Action Buttons */}
-                    <div className="flex flex-wrap gap-2 sm:gap-2 sm:flex-shrink-0">
+                    <div className="flex flex-wrap gap-2 sm:gap-2 sm:flex-shrink-0 justify-end">
                       <AddParticipantButton
                         eventId={event.id}
                         secretKey={event.secretKey || ''}

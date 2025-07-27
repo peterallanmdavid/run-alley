@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { removeMemberAction } from '@/lib/actions';
-import { ConfirmationModal } from '@/components';
+import { ConfirmationModal, ActionButton } from '@/components';
 
 interface RemoveMemberButtonProps {
   memberId: string;
@@ -28,12 +28,12 @@ export default function RemoveMemberButton({ memberId, groupId, memberName }: Re
 
   return (
     <>
-      <button
+      <ActionButton
         onClick={() => setShowModal(true)}
-        className="bg-red-600 hover:bg-red-700 text-white text-sm font-medium px-3 py-1 rounded-md transition-colors duration-200"
+        variant="danger"
       >
         Remove
-      </button>
+      </ActionButton>
       
       <ConfirmationModal
         isOpen={showModal}
