@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ContainerCard } from '@/components';
+import { Button, ContainerCard } from '@/components';
 import { getCurrentUserServer, getEventsServer } from '@/lib/server-utils';
 import { GroupEvent } from '@/lib/data';
 import { redirect } from 'next/navigation';
@@ -22,7 +22,7 @@ export default async function MyEventsPage() {
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold text-gray-900">My Events</h1>
           <Link href="/add-event">
-            <span className="font-semibold rounded-xl transition duration-200 transform hover:scale-105 shadow-lg bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg">Create Event</span>
+          <Button variant="primary">Create Event</Button>
           </Link>
         </div>
         {events.length === 0 ? (

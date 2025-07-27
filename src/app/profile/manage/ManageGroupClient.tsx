@@ -24,7 +24,6 @@ export default function ManageGroupClient({ group, currentUser, totalMembers, to
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
   
   // Confirmation modal states
   const [showRemoveMemberModal, setShowRemoveMemberModal] = useState(false);
@@ -32,6 +31,9 @@ export default function ManageGroupClient({ group, currentUser, totalMembers, to
   const [memberToRemove, setMemberToRemove] = useState<{ id: string; name: string } | null>(null);
   const [eventToRemove, setEventToRemove] = useState<{ id: string; name: string } | null>(null);
   const [removeLoading, setRemoveLoading] = useState(false);
+
+  // Check if there are unsaved changes
+  const hasChanges = groupData.name !== group.name || groupData.description !== group.description;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -41,8 +43,10 @@ export default function ManageGroupClient({ group, currentUser, totalMembers, to
     }));
   };
 
-  const handleUpdateGroup = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleUpdateGroup = async (e?: React.FormEvent | React.MouseEvent) => {
+    if (e) e.preventDefault();
+    if (!hasChanges) return;
+    
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -50,7 +54,6 @@ export default function ManageGroupClient({ group, currentUser, totalMembers, to
     try {
       await updateGroup(currentUser.group.id, groupData);
       setSuccess('Group updated successfully!');
-      setIsEditing(false);
     } catch (error) {
       if (error instanceof ApiError) {
         setError(error.message);
@@ -67,7 +70,6 @@ export default function ManageGroupClient({ group, currentUser, totalMembers, to
       name: group.name,
       description: group.description || ''
     });
-    setIsEditing(false);
   };
 
   const handleRemoveMember = async (memberId: string) => {
@@ -142,115 +144,71 @@ export default function ManageGroupClient({ group, currentUser, totalMembers, to
             <div className="flex items-center">
               <h1 className="text-3xl font-bold text-gray-900">Run Group Details</h1>
             </div>
-            <div className="flex gap-3">
-              {!isEditing && (
-                <Button
-                  onClick={() => setIsEditing(true)}
-                  variant="primary"
-                >
-                  Edit Group
-                </Button>
-              )}
-            </div>
           </div>
 
           {/* Group Details Section */}
           <div className="mb-8">
-            {isEditing ? (
-              <form onSubmit={handleUpdateGroup} className="space-y-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                    Group Name *
-                  </label>
-                  <Input
-                    id="name"
-                    name="name"
-                    value={groupData.name}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="Enter group name"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                    Description
-                  </label>
-                  <TextArea
-                    id="description"
-                    name="description"
-                    value={groupData.description}
-                    onChange={handleInputChange}
-                    rows={3}
-                    placeholder="Describe your run group"
-                  />
-                </div>
-
-                <div className="flex gap-4 pt-6">
-                  <Button
-                    type="button"
-                    onClick={handleCancelEdit}
-                    variant="secondary"
-                    className="flex-1"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    className="flex-1"
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                        </svg>
-                        Saving...
-                      </span>
-                    ) : (
-                      'Save Changes'
-                    )}
-                  </Button>
-                </div>
-              </form>
-            ) : (
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Group Name
-                  </label>
-                  <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900">
-                    {group.name}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description
-                  </label>
-                  <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900 min-h-[80px]">
-                    {group.description || 'No description provided'}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Created
-                  </label>
-                  <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900">
-                    {new Date(group.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </div>
-                </div>
+            {success && (
+              <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-green-800">{success}</p>
               </div>
             )}
+            {error && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-800">{error}</p>
+              </div>
+            )}
+            
+            <form onSubmit={handleUpdateGroup} className="space-y-6">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                  Group Name *
+                </label>
+                <Input
+                  id="name"
+                  name="name"
+                  value={groupData.name}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Enter group name"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                  Description
+                </label>
+                <TextArea
+                  id="description"
+                  name="description"
+                  value={groupData.description}
+                  onChange={handleInputChange}
+                  rows={3}
+                  placeholder="Describe your run group"
+                />
+              </div>
+
+              <div className="flex gap-4 pt-6">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  className="flex-1"
+                  disabled={loading || !hasChanges}
+                >
+                  {loading ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                      </svg>
+                      Saving...
+                    </span>
+                  ) : (
+                    'Save Changes'
+                  )}
+                </Button>
+              </div>
+            </form>
           </div>
 
           {/* Members List */}

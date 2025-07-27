@@ -32,7 +32,7 @@ export default async function MyMembersPage() {
             <h1 className="text-3xl font-bold text-gray-900">My Members</h1>
           </div>
           <Link href="/add-member">
-            <span className={`${buttonBase} ${buttonPrimary} text-sm px-4 py-2 rounded-lg`}>Add Member</span>
+            <Button variant="primary">Add Member</Button>
           </Link>
         </div>
 
@@ -66,14 +66,11 @@ export default async function MyMembersPage() {
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900">{member.name}</h3>
+                        <p> {member.email && `${member.email}`}</p>
                         <p className="text-sm text-gray-600">
                           Age: {member.age} • Gender: {member.gender}
-                          {member.email && ` • 📧 ${member.email}`}
                         </p>
                       </div>
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      #{member.id.slice(-4)}
                     </div>
                     <div className="flex items-center space-x-2">
                       <Link href={`/edit-member/${member.id}`}>
