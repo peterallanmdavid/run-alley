@@ -106,6 +106,15 @@ export async function removeEvent(groupId: string, eventId: string): Promise<voi
   return handleResponse<void>(response);
 }
 
+export async function updateEvent(groupId: string, eventId: string, data: { name?: string; location?: string; time?: string; distance?: string; paceGroups?: string[] }): Promise<GroupEvent> {
+  const response = await fetch(`${API_BASE}/groups/${groupId}/events/${eventId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  return handleResponse<GroupEvent>(response);
+}
+
 export async function getAllEvents(): Promise<Array<GroupEvent & { groupName: string; groupId: string }>> {
   const response = await fetch(`${API_BASE}/events`, {
     cache: 'no-store'

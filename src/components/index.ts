@@ -5,4 +5,5 @@ export { default as Header } from './Header';
 export { GroupCard } from './GroupCard';
 export { Modal } from './Modal';
 export { default as EventsCard } from './EventsCard';
-export { default as ContainerCard } from './ContainerCard'; 
+export { default as ContainerCard } from './ContainerCard';
+export { default as ConfirmationModal } from './ConfirmationModal'; 

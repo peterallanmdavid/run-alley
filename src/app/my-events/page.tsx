@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { Button, EventsCard, ContainerCard } from '@/components';
+import { ContainerCard } from '@/components';
 import { getCurrentUserServer, getEventsServer } from '@/lib/server-utils';
 import { GroupEvent } from '@/lib/data';
 import { redirect } from 'next/navigation';
+import RemoveEventButton from './RemoveEventButton';
 
 export default async function MyEventsPage() {
   const currentUser = await getCurrentUserServer();
@@ -47,22 +48,32 @@ export default async function MyEventsPage() {
             <div className="divide-y divide-gray-200">
               {events.map((event) => (
                 <div key={event.id} className="px-6 py-4 hover:bg-gray-50 transition-colors duration-200">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                      🏃
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900">{event.name}</h3>
-                      <p className="text-sm text-gray-600">
-                        📍 {event.location} • 📅 {formatEventTime(event.time)} • 📏 {event.distance} km
-                      </p>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {event.paceGroups.map((pace, index) => (
-                          <span key={index} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                            {pace}
-                          </span>
-                        ))}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                        🏃
                       </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900">{event.name}</h3>
+                        <p className="text-sm text-gray-600">
+                          📍 {event.location} • 📅 {formatEventTime(event.time)} • 📏 {event.distance} km
+                        </p>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {event.paceGroups.map((pace, index) => (
+                            <span key={index} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                              {pace}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Link href={`/edit-event/${event.id}`}>
+                        <button className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-1 rounded-md transition-colors duration-200">
+                          Edit
+                        </button>
+                      </Link>
+                      <RemoveEventButton eventId={event.id} groupId={currentUser.group.id} eventName={event.name} />
                     </div>
                   </div>
                 </div>

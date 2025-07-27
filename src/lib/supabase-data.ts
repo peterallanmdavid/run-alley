@@ -243,6 +243,37 @@ export async function removeEvent(groupId: string, eventId: string): Promise<boo
   return true;
 }
 
+export async function updateEvent(groupId: string, eventId: string, updates: { name?: string; location?: string; time?: string; distance?: string; paceGroups?: string[] }): Promise<GroupEvent | null> {
+  const { data, error } = await supabase
+    .from('events')
+    .update({
+      name: updates.name,
+      location: updates.location,
+      time: updates.time,
+      distance: updates.distance,
+      pace_groups: updates.paceGroups,
+    })
+    .eq('id', eventId)
+    .eq('group_id', groupId)
+    .select()
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') return null; // No rows returned
+    throw error;
+  }
+
+  return {
+    id: data.id,
+    name: data.name,
+    location: data.location,
+    time: data.time,
+    distance: data.distance,
+    paceGroups: data.pace_groups || [],
+    createdAt: data.created_at,
+  };
+}
+
 export async function getEvents(groupId: string): Promise<GroupEvent[]> {
   const { data, error } = await supabase
     .from('events')
