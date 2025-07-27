@@ -37,37 +37,59 @@ export default async function EventsPage() {
                 <Link 
                   key={event.id} 
                   href={`/events/${event.id}`}
-                  className="block px-6 py-4 hover:bg-gray-50 transition-colors duration-200"
+                  className="block px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors duration-200"
                 >
-                  <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                  <div className="flex items-start space-x-3 sm:space-x-4">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-green-600 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-xs sm:text-sm flex-shrink-0 mt-1">
                       🏃
                     </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <h4 className="text-lg font-semibold text-gray-900">{event.name}</h4>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                    <div className="flex-1 min-w-0">
+                      {/* Header with title and badges */}
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
+                        <h4 className="text-base sm:text-lg font-semibold text-gray-900 leading-tight">
+                          {event.name}
+                        </h4>
+                        <div className="flex flex-wrap gap-1 sm:gap-2">
+                          <span className="text-xs sm:text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full whitespace-nowrap">
                             {event.groupName}
                           </span>
-                          <span className="text-sm text-gray-500 bg-blue-100 px-2 py-1 rounded-full">
+                          <span className="text-xs sm:text-sm text-gray-500 bg-blue-100 px-2 py-1 rounded-full whitespace-nowrap">
                             👥 {typeof event.participants === 'number' ? event.participants : event.participants?.length || 0} participant{(typeof event.participants === 'number' ? event.participants : event.participants?.length || 0) !== 1 ? 's' : ''}
                           </span>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-600">
-                        📍 {event.location} • 📅 {formatEventTime(event.time)} • 📏 {event.distance} km
-                      </p>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {event.paceGroups.map((pace, index) => (
-                          <span key={index} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                            {pace}
-                          </span>
-                        ))}
+                      
+                      {/* Event details - stacked on mobile, horizontal on desktop */}
+                      <div className="space-y-1 sm:space-y-0 sm:flex sm:items-center sm:gap-4 text-xs sm:text-sm text-gray-600 mb-2">
+                        <div className="flex items-center gap-1">
+                          <span>📍</span>
+                          <span className="truncate">{event.location}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span>📅</span>
+                          <span>{formatEventTime(event.time)}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span>📏</span>
+                          <span>{event.distance} km</span>
+                        </div>
                       </div>
+                      
+                      {/* Pace groups */}
+                      {event.paceGroups && event.paceGroups.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {event.paceGroups.map((pace, index) => (
+                            <span key={index} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                              {pace}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <div className="text-gray-400">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    
+                    {/* Arrow icon */}
+                    <div className="text-gray-400 flex-shrink-0 mt-1">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
                     </div>

@@ -1,5 +1,6 @@
 export { Input, TextArea, Select, PasswordInput } from './Input';
 export { Button } from './Button';
+export { ActionButton } from './ActionButton';
 export { PaceGroupsSelect } from './PaceGroupsSelect';
 export { default as Header } from './Header';
 export { GroupCard } from './GroupCard';

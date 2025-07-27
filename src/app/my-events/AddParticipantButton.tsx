@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components';
+import { ActionButton } from '@/components';
 import { AddParticipantModal } from '@/components';
 import { Member } from '@/lib/data';
 
@@ -30,14 +30,13 @@ export default function AddParticipantButton({
 
   return (
     <>
-      <Button
+      <ActionButton
         onClick={() => setShowModal(true)}
         variant="secondary"
-        className="text-sm px-3 py-1"
         disabled={allMembersAreParticipants}
       >
         Add Participant
-      </Button>
+      </ActionButton>
 
       <AddParticipantModal
         isOpen={showModal}
