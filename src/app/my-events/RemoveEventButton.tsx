@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { removeEvent } from '@/lib/api';
+import { useState, useTransition } from 'react';
+import { removeEventAction } from '@/lib/actions';
 import { ConfirmationModal } from '@/components';
 
 interface RemoveEventButtonProps {
@@ -12,21 +11,19 @@ interface RemoveEventButtonProps {
 }
 
 export default function RemoveEventButton({ eventId, groupId, eventName }: RemoveEventButtonProps) {
-  const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [showModal, setShowModal] = useState(false);
-  const router = useRouter();
 
   const handleRemove = async () => {
-    setLoading(true);
-    try {
-      await removeEvent(groupId, eventId);
-      router.refresh(); // Refresh the page to show updated list
-    } catch (error) {
-      alert('Failed to remove event');
-    } finally {
-      setLoading(false);
-      setShowModal(false);
-    }
+    startTransition(async () => {
+      const result = await removeEventAction(groupId, eventId);
+      
+      if (result.success) {
+        setShowModal(false);
+      } else {
+        alert(result.error || 'Failed to remove event');
+      }
+    });
   };
 
   return (
@@ -47,7 +44,7 @@ export default function RemoveEventButton({ eventId, groupId, eventName }: Remov
         confirmText="Remove Event"
         cancelText="Cancel"
         variant="destructive"
-        loading={loading}
+        loading={isPending}
       />
     </>
   );

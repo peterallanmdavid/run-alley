@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { removeMember } from '@/lib/api';
+import { useState, useTransition } from 'react';
+import { removeMemberAction } from '@/lib/actions';
 import { ConfirmationModal } from '@/components';
 
 interface RemoveMemberButtonProps {
@@ -12,21 +11,19 @@ interface RemoveMemberButtonProps {
 }
 
 export default function RemoveMemberButton({ memberId, groupId, memberName }: RemoveMemberButtonProps) {
-  const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [showModal, setShowModal] = useState(false);
-  const router = useRouter();
 
   const handleRemove = async () => {
-    setLoading(true);
-    try {
-      await removeMember(groupId, memberId);
-      router.refresh(); // Refresh the page to show updated list
-    } catch (error) {
-      alert('Failed to remove member');
-    } finally {
-      setLoading(false);
-      setShowModal(false);
-    }
+    startTransition(async () => {
+      const result = await removeMemberAction(groupId, memberId);
+      
+      if (result.success) {
+        setShowModal(false);
+      } else {
+        alert(result.error || 'Failed to remove member');
+      }
+    });
   };
 
   return (
@@ -47,7 +44,7 @@ export default function RemoveMemberButton({ memberId, groupId, memberName }: Re
         confirmText="Remove Member"
         cancelText="Cancel"
         variant="destructive"
-        loading={loading}
+        loading={isPending}
       />
     </>
   );

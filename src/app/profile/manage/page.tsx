@@ -12,7 +12,7 @@ export default async function ManageGroupPage() {
   // Get latest 5 members and 5 events
   const [members, events] = await Promise.all([
     getMembersServer(currentUser.group.id),
-    getEventsServer(currentUser.group.id)
+    getEventsServer(currentUser.group.id, currentUser)
   ]);
 
   const latestMembers = members.slice(0, 5);

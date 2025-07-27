@@ -8,7 +8,14 @@ export async function GET(
   try {
     const { id } = await params;
     const events = await getEvents(id);
-    return NextResponse.json(events);
+    
+    // Remove sensitive data for public access
+    const publicEvents = events.map(event => {
+      const { secretKey, participants, ...publicEvent } = event;
+      return publicEvent;
+    });
+
+    return NextResponse.json(publicEvents);
   } catch (error) {
     console.error('Error fetching events:', error);
     return NextResponse.json(

@@ -1,5 +1,5 @@
 
-import { RunGroup, Member, GroupEvent } from './data';
+import { RunGroup, Member, GroupEvent, EventParticipant } from './data';
 
 const API_BASE = '/api';
 
@@ -124,6 +124,22 @@ export async function updateEvent(groupId: string, eventId: string, data: { name
   return handleResponse<GroupEvent>(response);
 }
 
+export async function addEventParticipant(eventId: string, memberId: string, secretKey: string): Promise<EventParticipant> {
+  const response = await fetch(`${API_BASE}/events/${eventId}/participants`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ memberId, secretKey }),
+  });
+  return handleResponse<EventParticipant>(response);
+}
+
+export async function getEventParticipants(eventId: string): Promise<EventParticipant[]> {
+  const response = await fetch(`${API_BASE}/events/${eventId}/participants`, {
+    cache: 'no-store'
+  });
+  return handleResponse<EventParticipant[]>(response);
+}
+
 export async function getAllEvents(): Promise<Array<GroupEvent & { groupName: string; groupId: string }>> {
   const response = await fetch(`${API_BASE}/events`, {
     cache: 'no-store'
@@ -183,4 +199,13 @@ export async function resetPassword(groupId: string): Promise<{ success: boolean
     headers: { 'Content-Type': 'application/json' },
   });
   return handleResponse<{ success: boolean; newPassword: string; message: string }>(response);
+}
+
+export async function addEventParticipants(eventId: string, memberIds: string[], secretKey: string): Promise<{ success: boolean; added: EventParticipant[]; errors?: Array<{ memberId: string; error: string }>; summary: { total: number; added: number; failed: number } }> {
+  const response = await fetch(`${API_BASE}/events/${eventId}/participants/bulk`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ memberIds, secretKey }),
+  });
+  return handleResponse(response);
 }

@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { Button, ContainerCard } from '@/components';
-import { getCurrentUserServer, getEventsServer } from '@/lib/server-utils';
+import { getCurrentUserServer, getEventsServer, getMembersServer } from '@/lib/server-utils';
 import { GroupEvent } from '@/lib/data';
 import { redirect } from 'next/navigation';
 import RemoveEventButton from './RemoveEventButton';
+import AddParticipantButton from './AddParticipantButton';
 
 export default async function MyEventsPage() {
   const currentUser = await getCurrentUserServer();
@@ -12,10 +13,13 @@ export default async function MyEventsPage() {
   }
   let events: GroupEvent[] = [];
   try {
-    events = await getEventsServer(currentUser.group.id);
+    events = await getEventsServer(currentUser.group.id, currentUser);
   } catch (error) {
     console.error('Error fetching events:', error);
   }
+
+  const members = await getMembersServer(currentUser.group.id);
+
   return (
     <div className="py-8">
       <div className="max-w-6xl mx-auto px-4">
@@ -65,9 +69,21 @@ export default async function MyEventsPage() {
                             </span>
                           ))}
                         </div>
+                        {event.participants && event.participants.length > 0 && (
+                          <p className="text-sm text-gray-500">
+                            👥 {event.participants.length} participant{event.participants.length !== 1 ? 's' : ''}
+                          </p>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
+                      <AddParticipantButton
+                        eventId={event.id}
+                        secretKey={event.secretKey || ''}
+                        groupId={currentUser.group.id}
+                        existingMembers={members}
+                        currentParticipants={event.participants?.map(p => ({ memberId: p.memberId })) || []}
+                      />
                       <Link href={`/edit-event/${event.id}`}>
                         <button className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-3 py-1 rounded-md transition-colors duration-200">
                           Edit

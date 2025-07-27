@@ -6,6 +6,14 @@ export interface Member {
   email?: string; // Optional email field
 }
 
+export interface EventParticipant {
+  id: string;
+  eventId: string;
+  memberId: string;
+  member: Member;
+  createdAt: string;
+}
+
 export interface GroupEvent {
   id: string;
   name: string;
@@ -14,6 +22,8 @@ export interface GroupEvent {
   distance: string;
   paceGroups: string[];
   createdAt: string;
+  secretKey?: string; // Only returned for authenticated users
+  participants?: EventParticipant[]; // Only returned for authenticated users
 }
 
 export interface RunGroup {
