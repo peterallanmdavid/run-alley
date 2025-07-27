@@ -169,7 +169,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Recent Activity */}
-        <ContainerCard className="p-8">
+        <ContainerCard className="p-4">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Activity</h2>
           <div className="flex flex-col gap-6">
             {loadingGroup ? (
