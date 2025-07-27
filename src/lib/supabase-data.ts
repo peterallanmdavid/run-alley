@@ -462,3 +462,14 @@ export async function getAllEvents(): Promise<Array<GroupEvent & { groupName: st
 
   return eventsWithParticipants;
 } 
+
+export async function removeEventParticipant(eventId: string, participantId: string): Promise<boolean> {
+  const { error } = await supabase
+    .from('event_participants')
+    .delete()
+    .eq('id', participantId)
+    .eq('event_id', eventId);
+
+  if (error) throw error;
+  return true;
+} 

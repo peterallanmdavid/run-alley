@@ -209,3 +209,10 @@ export async function addEventParticipants(eventId: string, memberIds: string[],
   });
   return handleResponse(response);
 }
+
+export async function removeEventParticipant(eventId: string, participantId: string): Promise<{ message: string }> {
+  const response = await fetch(`${API_BASE}/events/${eventId}/participants/${participantId}`, {
+    method: 'DELETE',
+  });
+  return handleResponse<{ message: string }>(response);
+}

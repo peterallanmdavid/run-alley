@@ -1,6 +1,6 @@
 'use server'
 
-import { addEventParticipant, addMember, removeEvent, removeMember } from './supabase-data';
+import { addEventParticipant, addMember, removeEvent, removeMember, removeEventParticipant } from './supabase-data';
 import { revalidatePath } from 'next/cache';
 
 export async function addParticipantAction(
@@ -107,5 +107,17 @@ export async function addMultipleParticipantsAction(
       errors: [{ memberId: '', error: 'Failed to add participants' }],
       summary: { total: memberIds.length, added: 0, failed: memberIds.length }
     };
+  }
+} 
+
+export async function removeEventParticipantAction(eventId: string, participantId: string) {
+  try {
+    await removeEventParticipant(eventId, participantId);
+    revalidatePath('/my-events');
+    revalidatePath(`/edit-event/${eventId}`);
+    return { success: true };
+  } catch (error) {
+    console.error('Error removing participant:', error);
+    return { success: false, error: 'Failed to remove participant' };
   }
 } 

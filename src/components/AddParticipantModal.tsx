@@ -21,6 +21,7 @@ interface AddParticipantModalProps {
   groupId: string;
   existingMembers: Member[];
   currentParticipants?: { memberId: string }[];
+  onParticipantsAdded?: () => void;
 }
 
 export default function AddParticipantModal({
@@ -31,6 +32,7 @@ export default function AddParticipantModal({
   groupId,
   existingMembers,
   currentParticipants = [],
+  onParticipantsAdded,
 }: AddParticipantModalProps) {
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
   const [showNewMemberForm, setShowNewMemberForm] = useState(false);
@@ -62,6 +64,9 @@ export default function AddParticipantModal({
         setSuccess(`Successfully added ${result.summary.added} participant${result.summary.added !== 1 ? 's' : ''}!`);
         setSelectedMemberIds([]);
         
+        // Call the callback to refresh parent component
+        onParticipantsAdded?.();
+        
         // Close modal after a short delay to show success message
         setTimeout(() => {
           onClose();
@@ -86,6 +91,9 @@ export default function AddParticipantModal({
         setSuccess('New member created and added as participant!');
         setNewMember({ name: '', age: '', gender: '', email: '' });
         setShowNewMemberForm(false);
+        
+        // Call the callback to refresh parent component
+        onParticipantsAdded?.();
         
         // Close modal after a short delay to show success message
         setTimeout(() => {
