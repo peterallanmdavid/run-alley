@@ -65,68 +65,13 @@ export default function ManageGroupClient({ group, currentUser, totalMembers, to
     }
   };
 
-  const handleCancelEdit = () => {
-    setGroupData({
-      name: group.name,
-      description: group.description || ''
-    });
-  };
-
-  const handleRemoveMember = async (memberId: string) => {
-    setRemoveLoading(true);
-    try {
-      await removeMember(currentUser.group.id, memberId);
-      // Refresh the page to show updated data
-      window.location.reload();
-    } catch (error) {
-      if (error instanceof ApiError) {
-        alert(error.message);
-      } else {
-        alert('Failed to remove member');
-      }
-    } finally {
-      setRemoveLoading(false);
-      setShowRemoveMemberModal(false);
-      setMemberToRemove(null);
-    }
-  };
-
-  const handleRemoveEvent = async (eventId: string) => {
-    setRemoveLoading(true);
-    try {
-      await removeEvent(currentUser.group.id, eventId);
-      // Refresh the page to show updated data
-      window.location.reload();
-    } catch (error) {
-      if (error instanceof ApiError) {
-        alert(error.message);
-      } else {
-        alert('Failed to remove event');
-      }
-    } finally {
-      setRemoveLoading(false);
-      setShowRemoveEventModal(false);
-      setEventToRemove(null);
-    }
-  };
-
-  const openRemoveMemberModal = (member: { id: string; name: string }) => {
-    setMemberToRemove(member);
-    setShowRemoveMemberModal(true);
-  };
-
-  const openRemoveEventModal = (event: { id: string; name: string }) => {
-    setEventToRemove(event);
-    setShowRemoveEventModal(true);
-  };
-
   const formatEventTime = (dateTimeString: string) => {
     try {
       const date = new Date(dateTimeString);
       return date.toLocaleString('en-US', {
-        weekday: 'long',
+        weekday: 'short',
         year: 'numeric',
-        month: 'long',
+        month: 'short',
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
@@ -137,16 +82,14 @@ export default function ManageGroupClient({ group, currentUser, totalMembers, to
   };
 
   return (
-    <div className="py-8">
+    <div className="py-4">
       <div className="max-w-4xl mx-auto px-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center">
-              <h1 className="text-3xl font-bold text-gray-900">Run Group Details</h1>
-            </div>
+        
+        {/* Group Details Section */}
+        <ContainerCard className="p-4 sm:p-6">
+          <div className="flex items-center mb-6">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Run Group Details</h1>
           </div>
-
-          {/* Group Details Section */}
           <div className="mb-8">
             {success && (
               <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -210,146 +153,130 @@ export default function ManageGroupClient({ group, currentUser, totalMembers, to
               </div>
             </form>
           </div>
+        </ContainerCard>
 
-          {/* Members List */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Recent Members</h3>
-              <div className="flex items-center space-x-2">
-                <Link href="/my-members" className="text-blue-600 hover:underline text-sm font-medium">
-                  View All ({totalMembers})
-                </Link>
-                <Link href="/add-member">
-                  <Button variant="success">
-                    Add Member
-                  </Button>
-                </Link>
-              </div>
+        {/* Members List */}
+        <ContainerCard className="mt-4 p-4">
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Recent Members</h3>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+              <Link href="/my-members" className="text-blue-600 hover:underline text-sm font-medium">
+                <Button variant="secondary">
+                  Manage Members ({totalMembers})
+                </Button>
+              </Link>
+              <Link href="/add-member">
+                <Button variant="success" className="w-full sm:w-auto">
+                  Add Member
+                </Button>
+              </Link>
             </div>
-            
-            {!group.members || group.members.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <p>No members yet. Add the first member!</p>
+          </div>
+          
+          {!group.members || group.members.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>No members yet. Add the first member!</p>
+            </div>
+          ) : (
+            <ContainerCard>
+              <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+                <h4 className="text-lg font-semibold text-gray-900">Recent Members</h4>
               </div>
-            ) : (
-              <ContainerCard>
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <h4 className="text-lg font-semibold text-gray-900">Recent Members</h4>
-                </div>
-                <div className="divide-y divide-gray-200">
-                  {group.members.slice(0, 5).map((member) => (
-                    <div key={member.id} className="px-6 py-4 hover:bg-gray-50 transition-colors duration-200">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                            {member.name.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <h4 className="text-lg font-semibold text-gray-900">{member.name}</h4>
-                            <p className="text-sm text-gray-600">Age: {member.age} • Gender: {member.gender}</p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => openRemoveMemberModal(member)}
-                          className="text-red-500 hover:text-red-700 text-sm font-medium"
-                        >
-                          Remove
-                        </button>
+              <div className="divide-y divide-gray-200">
+                {group.members.map((member) => (
+                  <div key={member.id} className="px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors duration-200">
+                    <div className="flex items-start space-x-3 sm:space-x-4">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-xs sm:text-sm flex-shrink-0 mt-1">
+                        {member.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-base sm:text-lg font-semibold text-gray-900 leading-tight mb-1">{member.name}</h4>
+                        <p className="text-xs sm:text-sm text-gray-600">
+                          Age: {member.age} • Gender: {member.gender}
+                        </p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </ContainerCard>
-            )}
-          </div>
-
-          {/* Events List */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Recent Events</h3>
-              <div className="flex items-center space-x-2">
-                <Link href="/my-events" className="text-blue-600 hover:underline text-sm font-medium">
-                  View All ({totalEvents})
-                </Link>
-                <Link href="/add-event">
-                  <Button variant="primary">
-                    Add Event
-                  </Button>
-                </Link>
+                  </div>
+                ))}
               </div>
-            </div>
-            
-            {!group.events || group.events.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <p>No events yet. Add the first event!</p>
-              </div>
-            ) : (
-              <ContainerCard>
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <h4 className="text-lg font-semibold text-gray-900">Recent Events</h4>
-                </div>
-                <div className="divide-y divide-gray-200">
-                  {group.events.slice(0, 5).map((event) => (
-                    <div key={event.id} className="px-6 py-4 hover:bg-gray-50 transition-colors duration-200">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-10 h-10 bg-gradient-to-r from-green-600 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                            🏃
-                          </div>
-                          <div>
-                            <h4 className="text-lg font-semibold text-gray-900">{event.name}</h4>
-                            <p className="text-sm text-gray-600">
-                              📍 {event.location} • 📅 {formatEventTime(event.time)} • 📏 {event.distance} km
-                            </p>
-                            <div className="flex flex-wrap gap-1 mt-1">
-                              {event.paceGroups.map((pace, index) => (
-                                <span key={index} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                                  {pace}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => openRemoveEventModal(event)}
-                          className="text-red-500 hover:text-red-700 text-sm font-medium"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </ContainerCard>
-            )}
-          </div>
+            </ContainerCard>
+          )}
         </div>
+        </ContainerCard>
+
+        {/* Events List */}
+        <ContainerCard className="mt-4 p-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Recent Events</h3>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+              <Link href="/my-events" className="text-blue-600 hover:underline text-sm font-medium">
+                <Button variant="secondary">
+                  Manage Events ({totalEvents})
+                </Button>
+              </Link>
+              <Link href="/add-event">
+                <Button variant="success" className="w-full sm:w-auto">
+                  Add Event
+                </Button>
+              </Link>
+            </div>
+          </div>
+          
+          {!group.events || group.events.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>No events yet. Add the first event!</p>
+            </div>
+          ) : (
+            <ContainerCard>
+              <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+                <h4 className="text-lg font-semibold text-gray-900">Recent Events</h4>
+              </div>
+              <div className="divide-y divide-gray-200">
+                {group.events.map((event) => (
+                  <div key={event.id} className="px-4 sm:px-6 py-4 hover:bg-gray-50 transition-colors duration-200">
+                    <div className="flex items-start space-x-3 sm:space-x-4">
+                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-green-600 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-xs sm:text-sm flex-shrink-0 mt-1">
+                        🏃
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-base sm:text-lg font-semibold text-gray-900 leading-tight mb-2">{event.name}</h4>
+                        
+                        {/* Event details - stacked on mobile */}
+                        <div className="space-y-1 sm:space-y-0 sm:flex sm:items-center sm:gap-4 text-xs sm:text-sm text-gray-600 mb-2">
+                          <div className="flex items-center gap-1">
+                            <span>📍</span>
+                            <span className="truncate">{event.location}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span>📅</span>
+                            <span className="truncate">{formatEventTime(event.time)}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span>📏</span>
+                            <span>{event.distance} km</span>
+                          </div>
+                        </div>
+                        
+                        {/* Pace groups */}
+                        {event.paceGroups && event.paceGroups.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {event.paceGroups.map((pace, index) => (
+                              <span key={index} className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                                {pace}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ContainerCard>
+          )}
+        </ContainerCard>
       </div>
-      
-      {/* Confirmation Modals */}
-      <ConfirmationModal
-        isOpen={showRemoveMemberModal}
-        onClose={() => setShowRemoveMemberModal(false)}
-        onConfirm={() => memberToRemove && handleRemoveMember(memberToRemove.id)}
-        title="Remove Member"
-        description={`Are you sure you want to remove "${memberToRemove?.name}"? This action cannot be undone.`}
-        confirmText="Remove Member"
-        cancelText="Cancel"
-        variant="destructive"
-        loading={removeLoading}
-      />
-      
-      <ConfirmationModal
-        isOpen={showRemoveEventModal}
-        onClose={() => setShowRemoveEventModal(false)}
-        onConfirm={() => eventToRemove && handleRemoveEvent(eventToRemove.id)}
-        title="Remove Event"
-        description={`Are you sure you want to remove "${eventToRemove?.name}"? This action cannot be undone.`}
-        confirmText="Remove Event"
-        cancelText="Cancel"
-        variant="destructive"
-        loading={removeLoading}
-      />
     </div>
   );
 } 

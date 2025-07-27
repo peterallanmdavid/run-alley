@@ -152,15 +152,11 @@ export default function EditEventForm({ event, groupId, members, currentParticip
                             {participant.member.name}
                           </div>
                           <div className="text-xs text-gray-500">
-                            {participant.member.age} years old • {participant.member.gender}
-                            {participant.member.email && ` • ${participant.member.email}`}
+                            {participant.member.email ||''}
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <div className="text-xs text-gray-400">
-                          {new Date(participant.createdAt).toLocaleDateString()}
-                        </div>
                         <button
                           type="button"
                           onClick={() => handleRemoveParticipant(participant.id, participant.member.name)}
