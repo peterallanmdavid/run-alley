@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getEventById } from '@/lib/supabase-data';
-import { ContainerCard, Button } from '@/components';
+import { ContainerCard, Button, InviteButton } from '@/components';
+import { getCurrentUserServer } from '@/lib/server-utils';
 
 interface EventDetailsPageProps {
   params: Promise<{ eventId: string }>;
@@ -14,6 +15,14 @@ export default async function EventDetailsPage({ params }: EventDetailsPageProps
   
   if (!event) {
     notFound();
+  }
+
+  // Check if user is authenticated to show invite button
+  let currentUser = null;
+  try {
+    currentUser = await getCurrentUserServer();
+  } catch (error) {
+    // User not authenticated, that's fine
   }
 
   const formatEventTime = (timeString: string) => {
@@ -42,8 +51,12 @@ export default async function EventDetailsPage({ params }: EventDetailsPageProps
         </div>
 
         <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{event.name}</h1>
-          <p className="text-gray-600">Organized by {event.groupName}</p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">{event.name}</h1>
+              <p className="text-gray-600">Organized by {event.groupName}</p>
+            </div>
+          </div>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">

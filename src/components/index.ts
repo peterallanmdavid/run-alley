@@ -8,4 +8,6 @@ export { default as EventsCard } from './EventsCard';
 export { default as ContainerCard } from './ContainerCard';
 export { default as ConfirmationModal } from './ConfirmationModal';
 export { default as AddParticipantModal } from './AddParticipantModal';
-export { default as MultiSelect } from './MultiSelect'; 
+export { default as MultiSelect } from './MultiSelect';
+export { default as QRCodeModal } from './QRCodeModal';
+export { default as InviteButton } from './InviteButton'; 

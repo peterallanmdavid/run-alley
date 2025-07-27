@@ -6,6 +6,7 @@ import { updateMember } from '@/lib/api';
 import { Member } from '@/lib/data';
 import Link from 'next/link';
 import { Button } from '@/components';
+import { GenderDropdown } from '@/components/GenderDropdown';
 
 interface EditMemberFormProps {
   member: Member;
@@ -62,17 +63,7 @@ export default function EditMemberForm({ member, groupId }: EditMemberFormProps)
             </div>
             <div>
               <label className="block mb-1 font-medium text-gray-700 text-sm sm:text-base">Gender</label>
-              <select 
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base" 
-                value={gender} 
-                onChange={e => setGender(e.target.value)} 
-                required
-              >
-                <option value="">Select gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
+              <GenderDropdown gender={gender} setGender={setGender} />
             </div>
             <div>
               <label className="block mb-1 font-medium text-gray-700 text-sm sm:text-base">Email Address (Optional)</label>

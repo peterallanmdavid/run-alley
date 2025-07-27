@@ -133,3 +133,27 @@ export async function getEventsServer(groupId: string, currentUser?: { group: { 
     return [];
   }
 } 
+
+export async function getEventBySecretCodeServer(secretCode: string) {
+  // Fetch event by secret code, including group name
+  const { data: event, error } = await supabase
+    .from('events')
+    .select('*, groups(name)')
+    .eq('secret_key', secretCode)
+    .single();
+
+  if (error || !event) return null;
+
+  return {
+    id: event.id,
+    name: event.name,
+    location: event.location,
+    time: event.time,
+    distance: event.distance,
+    paceGroups: event.pace_groups || [],
+    createdAt: event.created_at,
+    groupName: event.groups?.name || '',
+    groupId: event.group_id,
+    // No participants or secretKey for public
+  };
+} 

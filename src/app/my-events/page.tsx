@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import { Button, ContainerCard, ActionButton } from '@/components';
+import { Button, ContainerCard, ActionButton, InviteButton } from '@/components';
 import { getCurrentUserServer, getEventsServer, getMembersServer } from '@/lib/server-utils';
 import { GroupEvent } from '@/lib/data';
 import { redirect } from 'next/navigation';
-import AddParticipantButton from './AddParticipantButton';
 import RemoveEventButton from './RemoveEventButton';
+import AddParticipantButton from './AddParticipantButton';
 
 export default async function MyEventsPage() {
   const currentUser = await getCurrentUserServer();
@@ -98,7 +98,11 @@ export default async function MyEventsPage() {
                     </div>
                     
                     {/* Action Buttons */}
-                    <div className="flex flex-wrap gap-2 sm:gap-2 sm:flex-shrink-0 justify-end">
+                    <div className="flex flex-wrap gap-2 sm:gap-2 sm:flex-shrink-0">
+                      <InviteButton 
+                        eventName={event.name}
+                        secretCode={event.secretKey || ''}
+                      />
                       <AddParticipantButton
                         eventId={event.id}
                         secretKey={event.secretKey || ''}

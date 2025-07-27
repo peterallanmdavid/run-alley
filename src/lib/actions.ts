@@ -13,6 +13,7 @@ export async function addParticipantAction(
     revalidatePath('/my-events');
     return { success: true };
   } catch (error) {
+    console.error('Error adding participant:', error);
     return { success: false, error: 'Failed to add participant' };
   }
 }

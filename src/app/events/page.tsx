@@ -1,9 +1,19 @@
 import Link from 'next/link';
 import { ContainerCard } from '@/components';
 import { getAllEvents } from '@/lib/supabase-data';
+import { getCurrentUserServer } from '@/lib/server-utils';
+
 
 export default async function EventsPage() {
   const events = await getAllEvents();
+  
+  // Check if user is authenticated to show invite buttons
+  let currentUser = null;
+  try {
+    currentUser = await getCurrentUserServer();
+  } catch (error) {
+    // User not authenticated, that's fine
+  }
 
   const formatEventTime = (timeString: string) => {
     const date = new Date(timeString);
@@ -87,11 +97,13 @@ export default async function EventsPage() {
                       )}
                     </div>
                     
-                    {/* Arrow icon */}
-                    <div className="text-gray-400 flex-shrink-0 mt-1">
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
+                    {/* Arrow icon and invite button for authenticated users */}
+                    <div className="flex items-center gap-2 flex-shrink-0 mt-1">
+                      <div className="text-gray-400">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
                 </Link>

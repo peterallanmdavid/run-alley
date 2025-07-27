@@ -221,3 +221,36 @@ export async function getEventById(eventId: string): Promise<GroupEvent & { grou
   const response = await fetch(`${API_BASE}/events/${eventId}`);
   return handleResponse<GroupEvent & { groupName: string; groupId: string }>(response);
 }
+
+
+export async function getEventBySecretCode(secretCode: string): Promise<GroupEvent & { groupName: string; groupId: string }> {
+  const response = await fetch(`${API_BASE}/events/secret-code/${secretCode}`);
+  return handleResponse<GroupEvent & { groupName: string; groupId: string }>(response);
+}
+
+export async function joinEvent(
+  secretCode: string, 
+  memberData?: { name: string; age: string; gender: string; email?: string },
+  memberId?: string
+): Promise<{ success: boolean; message: string }> {
+  const body: { secretCode: string; memberData?: { name: string; age: string; gender: string; email?: string }; memberId?: string } = { secretCode };
+  if (memberData) body.memberData = memberData;
+  if (memberId) body.memberId = memberId;
+
+  console.log('Joining event:', body);
+  const response = await fetch(`${API_BASE}/join-event`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  return handleResponse<{ success: boolean; message: string }>(response);
+}
+
+export async function joinEventWithMember(secretCode: string, memberId: string): Promise<{ success: boolean; message: string }> {
+  return joinEvent(secretCode, undefined, memberId);
+}
+
+export async function getMembersBySecretCode(secretCode: string): Promise<Array<{ id: string; name: string; age: string; gender: string; email?: string }>> {
+  const response = await fetch(`${API_BASE}/events/secret-code/${secretCode}/members`);
+  return handleResponse<Array<{ id: string; name: string; age: string; gender: string; email?: string }>>(response);
+}

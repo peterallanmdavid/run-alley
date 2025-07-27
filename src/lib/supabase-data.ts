@@ -318,6 +318,29 @@ export async function addEventParticipant(eventId: string, memberId: string, sec
   };
 }
 
+export async function getEventBySecretCode(secretCode: string): Promise<GroupEvent | null> {
+  const { data, error } = await supabase
+    .from('events')
+    .select('*')
+    .eq('secret_key', secretCode)
+    .single();
+
+    if (error || !data) {
+      return null;
+    }
+
+    return {
+      id: data.id,
+      name: data.name,
+      location: data.location,
+      time: data.time,
+      distance: data.distance,
+      paceGroups: data.paceGroups,
+      createdAt: data.created_at,
+      secretKey: data.secret_key,
+    };
+}
+
 export async function getEventParticipants(eventId: string): Promise<EventParticipant[]> {
   const { data, error } = await supabase
     .from('event_participants')
@@ -506,3 +529,4 @@ export async function getEventById(eventId: string): Promise<(GroupEvent & { gro
     groupId: data.group_id,
   };
 } 
+

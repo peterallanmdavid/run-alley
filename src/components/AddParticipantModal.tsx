@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { GenderDropdown } from './GenderDropdown';
 
 interface AddParticipantModalProps {
   isOpen: boolean;
@@ -255,17 +256,7 @@ export default function AddParticipantModal({
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Gender *
                   </label>
-                  <select
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    value={newMember.gender}
-                    onChange={(e) => setNewMember(prev => ({ ...prev, gender: e.target.value }))}
-                    required
-                  >
-                    <option value="">Select gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </select>
+                  <GenderDropdown gender={newMember.gender} setGender={(value: string) => setNewMember(prev => ({ ...prev, gender: value }))} />
                 </div>
               </div>
 
@@ -303,11 +294,12 @@ export default function AddParticipantModal({
           >
             Cancel
           </Button>
+          
           <Button
             onClick={showNewMemberForm ? handleAddNewMember : handleAddMultipleParticipants}
             disabled={isPending || (showNewMemberForm && (!newMember.name || !newMember.age || !newMember.gender)) || (selectedMemberIds.length === 0 && !showNewMemberForm)}
           >
-            {isPending ? 'Adding...' : showNewMemberForm ? 'Add New Member' : `Add ${selectedMemberIds.length} Participant${selectedMemberIds.length !== 1 ? 's' : ''}`}
+            {isPending ? 'Adding...' :  showNewMemberForm ? 'Add New Member' : selectedMemberIds.length === 0 ? 'Add Participant' :  `Add ${selectedMemberIds.length} Participant${selectedMemberIds.length !== 1 ? 's' : ''}`}
           </Button>
         </DialogFooter>
       </DialogContent>

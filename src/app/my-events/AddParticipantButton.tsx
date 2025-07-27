@@ -22,18 +22,15 @@ export default function AddParticipantButton({
 }: AddParticipantButtonProps) {
   const [showModal, setShowModal] = useState(false);
 
-  // Check if all members are already participants
-  const availableMembers = existingMembers.filter(member => 
-    !currentParticipants.some(participant => participant.memberId === member.id)
-  );
-  const allMembersAreParticipants = availableMembers.length === 0;
 
   return (
     <>
       <ActionButton
-        onClick={() => setShowModal(true)}
+        onClick={() =>{
+          console.log('Adding participant');
+          setShowModal(true)
+        }}
         variant="secondary"
-        disabled={allMembersAreParticipants}
       >
         Add Participant
       </ActionButton>
