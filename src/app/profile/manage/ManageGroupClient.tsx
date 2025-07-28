@@ -64,6 +64,15 @@ export default function ManageGroupClient({ group, currentUser }: ManageGroupCli
     <div className="py-4">
       <div className="max-w-4xl mx-auto px-4">
         
+        {/* Back Button */}
+        <div className="mb-6">
+          <Link href="/profile" prefetch>
+            <Button variant="secondary" className="text-sm">
+              ← Back to Profile
+            </Button>
+          </Link>
+        </div>
+        
         {/* Group Details Section */}
         <ContainerCard className="p-4 sm:p-6">
           <div className="flex items-center mb-6">
@@ -111,7 +120,7 @@ export default function ManageGroupClient({ group, currentUser }: ManageGroupCli
               </div>
 
               <div className="flex gap-4 pt-6 justify-center">
-                <Link href="/profile" className="flex-1">
+                <Link href="/profile" prefetch className="flex-1">
                   <Button variant="secondary" className="w-full">
                     Cancel
                   </Button>

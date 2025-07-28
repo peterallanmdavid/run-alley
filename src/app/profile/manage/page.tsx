@@ -9,7 +9,7 @@ export default async function ManageGroupPage() {
     redirect('/login');
   }
 
-  // Get latest 5 members and 5 events
+  // Only fetch the latest 5 members and 5 events for the stats
   const [members, events] = await Promise.all([
     getMembersServer(currentUser.group.id),
     getEventsServer(currentUser.group.id, currentUser)
