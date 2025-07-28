@@ -43,34 +43,19 @@ export async function createGroup(groupData: { name: string; description: string
 export async function getGroups(): Promise<(RunGroup & { memberCount: number; eventCount: number })[]> {
   await connection();
   
-  // Fetch groups
-  const { data: groups, error } = await supabase
+  // Use a single query with joins to get groups and their counts
+  const { data, error } = await supabase
     .from('groups')
-    .select('*')
+    .select(`
+      *,
+      members!inner(count),
+      events!inner(count)
+    `)
     .order('created_at', { ascending: false });
+
   if (error) throw error;
 
-  // Fetch member counts
-  const { data: memberCountsRaw, error: memberError } = await supabase
-    .from('members')
-    .select('group_id', { count: 'exact', head: false });
-  if (memberError) throw memberError;
-  const memberCounts: Record<string, number> = {};
-  memberCountsRaw?.forEach((row: { group_id: string }) => {
-    memberCounts[row.group_id] = (memberCounts[row.group_id] || 0) + 1;
-  });
-
-  // Fetch event counts
-  const { data: eventCountsRaw, error: eventError } = await supabase
-    .from('events')
-    .select('group_id', { count: 'exact', head: false });
-  if (eventError) throw eventError;
-  const eventCounts: Record<string, number> = {};
-  eventCountsRaw?.forEach((row: { group_id: string }) => {
-    eventCounts[row.group_id] = (eventCounts[row.group_id] || 0) + 1;
-  });
-
-  return groups.map(group => ({
+  return data.map(group => ({
     id: group.id,
     name: group.name,
     email: group.email,
@@ -80,8 +65,8 @@ export async function getGroups(): Promise<(RunGroup & { memberCount: number; ev
     events: [],
     firstLogin: group.firstLogin ?? group.first_login ?? false,
     role: group.role || 'GroupOwner',
-    memberCount: memberCounts[group.id] || 0,
-    eventCount: eventCounts[group.id] || 0
+    memberCount: group.members?.[0]?.count || 0,
+    eventCount: group.events?.[0]?.count || 0
   }));
 }
 
@@ -438,31 +423,60 @@ export async function getEvents(groupId: string): Promise<GroupEvent[]> {
   
   const { data, error } = await supabase
     .from('events')
-    .select('*')
+    .select(`
+      *,
+      event_participants(
+        id,
+        member_id,
+        created_at,
+        member:members(
+          id,
+          name,
+          age,
+          gender,
+          email
+        )
+      )
+    `)
     .eq('group_id', groupId)
     .order('time', { ascending: true });
 
   if (error) throw error;
 
-  // Get participants for each event
-  const eventsWithParticipants = await Promise.all(
-    data.map(async (event) => {
-      const participants = await getEventParticipants(event.id);
-      return {
-        id: event.id,
-        name: event.name,
-        location: event.location,
-        time: event.time,
-        distance: event.distance,
-        paceGroups: event.pace_groups || [],
-        createdAt: event.created_at,
-        secretKey: event.secret_key,
-        participants,
+  return data.map((event) => ({
+    id: event.id,
+    name: event.name,
+    location: event.location,
+    time: event.time,
+    distance: event.distance,
+    paceGroups: event.pace_groups || [],
+    createdAt: event.created_at,
+    secretKey: event.secret_key,
+    participants: event.event_participants?.map((participant: {
+      id: string;
+      member_id: string;
+      created_at: string;
+      member: {
+        id: string;
+        name: string;
+        age: string;
+        gender: string;
+        email: string | null;
       };
-    })
-  );
-
-  return eventsWithParticipants;
+    }) => ({
+      id: participant.id,
+      eventId: event.id,
+      memberId: participant.member_id,
+      member: {
+        id: participant.member.id,
+        name: participant.member.name,
+        age: participant.member.age,
+        gender: participant.member.gender,
+        email: participant.member.email,
+      },
+      createdAt: participant.created_at,
+    })) || [],
+  }));
 }
 
 export async function getAllEvents(): Promise<Array<GroupEvent & { groupName: string; groupId: string }>> {
@@ -472,33 +486,60 @@ export async function getAllEvents(): Promise<Array<GroupEvent & { groupName: st
     .from('events')
     .select(`
       *,
-      group:groups(name)
+      group:groups(name),
+      event_participants(
+        id,
+        member_id,
+        created_at,
+        member:members(
+          id,
+          name,
+          age,
+          gender,
+          email
+        )
+      )
     `)
     .order('time', { ascending: true });
 
   if (error) throw error;
 
-  // Get participants for each event
-  const eventsWithParticipants = await Promise.all(
-    data.map(async (event) => {
-      const participants = await getEventParticipants(event.id);
-      return {
-        id: event.id,
-        name: event.name,
-        location: event.location,
-        time: event.time,
-        distance: event.distance,
-        paceGroups: event.pace_groups || [],
-        createdAt: event.created_at,
-        secretKey: event.secret_key,
-        participants,
-        groupName: event.group.name,
-        groupId: event.group_id,
+  return data.map((event) => ({
+    id: event.id,
+    name: event.name,
+    location: event.location,
+    time: event.time,
+    distance: event.distance,
+    paceGroups: event.pace_groups || [],
+    createdAt: event.created_at,
+    secretKey: event.secret_key,
+    participants: event.event_participants?.map((participant: {
+      id: string;
+      member_id: string;
+      created_at: string;
+      member: {
+        id: string;
+        name: string;
+        age: string;
+        gender: string;
+        email: string | null;
       };
-    })
-  );
-
-  return eventsWithParticipants;
+    }) => ({
+      id: participant.id,
+      eventId: event.id,
+      memberId: participant.member_id,
+      member: {
+        id: participant.member.id,
+        name: participant.member.name,
+        age: participant.member.age,
+        gender: participant.member.gender,
+        email: participant.member.email,
+      },
+      createdAt: participant.created_at,
+    })) || [],
+    groupName: event.group.name,
+    groupId: event.group_id,
+  }));
 } 
 
 export async function removeEventParticipant(eventId: string, participantId: string): Promise<boolean> {
@@ -519,7 +560,19 @@ export async function getEventById(eventId: string): Promise<(GroupEvent & { gro
     .from('events')
     .select(`
       *,
-      group:groups(name)
+      group:groups(name),
+      event_participants(
+        id,
+        member_id,
+        created_at,
+        member:members(
+          id,
+          name,
+          age,
+          gender,
+          email
+        )
+      )
     `)
     .eq('id', eventId)
     .single();
@@ -528,9 +581,6 @@ export async function getEventById(eventId: string): Promise<(GroupEvent & { gro
     if (error.code === 'PGRST116') return null; // No rows returned
     throw error;
   }
-
-  // Get participants for the event
-  const participants = await getEventParticipants(eventId);
 
   return {
     id: data.id,
@@ -541,7 +591,30 @@ export async function getEventById(eventId: string): Promise<(GroupEvent & { gro
     paceGroups: data.pace_groups || [],
     createdAt: data.created_at,
     secretKey: data.secret_key,
-    participants,
+    participants: data.event_participants?.map((participant: {
+      id: string;
+      member_id: string;
+      created_at: string;
+      member: {
+        id: string;
+        name: string;
+        age: string;
+        gender: string;
+        email: string | null;
+      };
+    }) => ({
+      id: participant.id,
+      eventId: data.id,
+      memberId: participant.member_id,
+      member: {
+        id: participant.member.id,
+        name: participant.member.name,
+        age: participant.member.age,
+        gender: participant.member.gender,
+        email: participant.member.email,
+      },
+      createdAt: participant.created_at,
+    })) || [],
     groupName: data.group.name,
     groupId: data.group_id,
   };

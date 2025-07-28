@@ -25,21 +25,15 @@ export async function getCurrentUserServer(): Promise<{ group: RunGroup & { emai
       name: string;
     };
 
-    // Check if session exists in DB
-    const { data: session, error: sessionError } = await supabase
-      .from('sessions')
-      .select('*')
-      .eq('token', token)
-      .single();
-    if (sessionError || !session) {
-      return null;
-    }
-
-    // Fetch current user data from database
+    // Fetch current user data from database with session validation in a single query
     const { data, error } = await supabase
       .from('groups')
-      .select('*')
+      .select(`
+        *,
+        sessions!inner(token)
+      `)
       .eq('id', decoded.id)
+      .eq('sessions.token', token)
       .single();
 
     if (error || !data) {
@@ -90,44 +84,87 @@ export async function getMembersServer(groupId: string): Promise<Member[]> {
 
 export async function getEventsServer(groupId: string, currentUser?: { group: { id: string } }): Promise<GroupEvent[]> {
   try {
-    const { data, error } = await supabase
+    // Check if the current user owns this group
+    const isOwner = currentUser && currentUser.group.id === groupId;
+
+    let query = supabase
       .from('events')
       .select('*')
       .eq('group_id', groupId)
       .order('time', { ascending: true });
 
+    // Only fetch participants if user owns the group
+    if (isOwner) {
+      query = supabase
+        .from('events')
+        .select(`
+          *,
+          event_participants(
+            id,
+            member_id,
+            created_at,
+            member:members(
+              id,
+              name,
+              age,
+              gender,
+              email
+            )
+          )
+        `)
+        .eq('group_id', groupId)
+        .order('time', { ascending: true });
+    }
+
+    const { data, error } = await query;
+
     if (error) throw error;
 
-    // Check if the current user owns this group
-    const isOwner = currentUser && currentUser.group.id === groupId;
+    return data.map((event) => {
+      let participants: EventParticipant[] = [];
+      let secretKey: string | undefined = undefined;
 
-    // Get participants for each event only if user owns the group
-    const eventsWithParticipants = await Promise.all(
-      data.map(async (event) => {
-        let participants: EventParticipant[] = [];
-        let secretKey: string | undefined = undefined;
+      if (isOwner) {
+        // Only include participants and secret key for group owners
+        participants = event.event_participants?.map((participant: {
+          id: string;
+          member_id: string;
+          created_at: string;
+          member: {
+            id: string;
+            name: string;
+            age: string;
+            gender: string;
+            email: string | null;
+          };
+        }) => ({
+          id: participant.id,
+          eventId: event.id,
+          memberId: participant.member_id,
+          member: {
+            id: participant.member.id,
+            name: participant.member.name,
+            age: participant.member.age,
+            gender: participant.member.gender,
+            email: participant.member.email,
+          },
+          createdAt: participant.created_at,
+        })) || [];
+        secretKey = event.secret_key;
+      }
 
-        if (isOwner) {
-          // Only fetch participants and include secret key for group owners
-          participants = await getEventParticipants(event.id);
-          secretKey = event.secret_key;
-        }
-
-        return {
-          id: event.id,
-          name: event.name,
-          location: event.location,
-          time: event.time,
-          distance: event.distance,
-          paceGroups: event.pace_groups || [],
-          createdAt: event.created_at,
-          participants,
-          secretKey,
-        };
-      })
-    );
-
-    return eventsWithParticipants;
+      return {
+        id: event.id,
+        name: event.name,
+        location: event.location,
+        time: event.time,
+        distance: event.distance,
+        paceGroups: event.pace_groups || [],
+        createdAt: event.created_at,
+        participants,
+        secretKey,
+      };
+    });
   } catch (error) {
     console.error('Error fetching events:', error);
     return [];
